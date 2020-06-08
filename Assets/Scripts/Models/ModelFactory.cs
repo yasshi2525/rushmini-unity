@@ -21,6 +21,7 @@ public class ModelFactory : MonoBehaviour
   public Company newCompany(int attractiveness, float x, float y)
   {
     var newC = Instantiate(c);
+    newC.isTemplate = false;
     newC.attractiveness = attractiveness;
     newC.GetComponent<SpriteRenderer>().enabled = true;
     SetPosition(newC.transform, x, y);
@@ -39,6 +40,7 @@ public class ModelFactory : MonoBehaviour
   public Train newTrain(float x, float y)
   {
     var newT = Instantiate(t);
+    newT.isTemplate = false;
     newT.GetComponent<SpriteRenderer>().enabled = true;
     SetPosition(newT.transform, x, y);
     return newT;
@@ -47,6 +49,7 @@ public class ModelFactory : MonoBehaviour
   public Human newHuman(Residence r, Company c)
   {
     var newH = Instantiate(h);
+    newH.isTemplate = false;
     newH.departure = r;
     newH.destination = c;
     newH.GetComponent<SpriteRenderer>().enabled = true;

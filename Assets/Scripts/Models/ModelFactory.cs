@@ -2,65 +2,42 @@ using UnityEngine;
 
 public class ModelFactory : MonoBehaviour
 {
+  public ModelListener listener;
   public ModelStorage storage;
   public Company c;
   public Residence r;
+  public RailNode rn;
+  public RailEdge re;
   public Train t;
   public Human h;
 
-  private void SetPosition(Transform trans, float x, float y)
+  public Company NewCompany(int attractiveness, Vector3 pos)
   {
-    trans.position = new Vector3(x, y, 0.0f);
+    return c.NewInstance(attractiveness, pos);
   }
 
-  private void EnableRenderer(GameObject obj)
+  public Residence NewResidence(Vector3 pos)
   {
-    obj.GetComponent<SpriteRenderer>().enabled = true;
+    return r.NewInstance(pos);
   }
 
-  public Company newCompany(int attractiveness, float x, float y)
+  public RailNode NewRailNode(Vector3 pos)
   {
-    var newC = Instantiate(c);
-    newC.isTemplate = false;
-    newC.attractiveness = attractiveness;
-    newC.GetComponent<SpriteRenderer>().enabled = true;
-    SetPosition(newC.transform, x, y);
-    return newC;
+    return rn.NewInstance(pos);
   }
 
-  public Residence newResidence(float x, float y)
+  public RailEdge NewRailEdge(RailNode from, RailNode to, bool isOutbound)
   {
-    var newR = Instantiate(r);
-    newR.isTemplate = false;
-    newR.GetComponent<SpriteRenderer>().enabled = true;
-    SetPosition(newR.transform, x, y);
-    return newR;
+    return re.NewInstance(from, to, isOutbound);
   }
 
-  public Train newTrain(float x, float y)
+  public Train NewTrain(Vector3 pos)
   {
-    var newT = Instantiate(t);
-    newT.isTemplate = false;
-    newT.GetComponent<SpriteRenderer>().enabled = true;
-    SetPosition(newT.transform, x, y);
-    return newT;
+    return t.NewInstance(pos);
   }
 
-  public Human newHuman(Residence r, Company c)
+  public Human NewHuman(Residence r, Company c)
   {
-    var newH = Instantiate(h);
-    newH.isTemplate = false;
-    newH.departure = r;
-    newH.destination = c;
-    newH.GetComponent<SpriteRenderer>().enabled = true;
-    var len = Random.Range(0f, newH.rand);
-    var theta = Random.Range(0f, Mathf.PI * 2);
-
-    var rLoc = r.GetComponent<SpriteRenderer>().transform.position;
-    SetPosition(
-      newH.transform,
-      rLoc.x + len * Mathf.Cos(theta),
-      rLoc.y + len * Mathf.Sin(theta));
-    return newH;
+    return h.NewInstance(r, c);
   }
 }

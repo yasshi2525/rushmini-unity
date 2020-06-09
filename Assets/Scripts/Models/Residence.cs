@@ -5,13 +5,14 @@ public class Residence : MonoBehaviour
 {
   public ModelStorage storage;
   public ModelListener listener;
-  public bool isTemplate = true;
+  private Residence template;
+  private bool isTemplate = true;
   public ModelFactory factory;
   /**
    * 会社の魅力度に応じて住民をスポーンするため、
    * 魅力度の数だけ同じ会社を行き先に設定する
    */
-  public List<Company> destinations;
+  [System.NonSerialized] public List<Company> destinations;
 
   public float intervalSec = 0.5f;
 
@@ -35,6 +36,7 @@ public class Residence : MonoBehaviour
   {
     if (isTemplate)
     {
+      template = this;
       listener.Find<Residence>(EventType.CREATED).AddListener(r => storage.Find<Residence>().Add(r));
       listener.Find<Residence>(EventType.DELETED).AddListener(r => storage.Find<Residence>().Remove(r));
     }
@@ -62,10 +64,21 @@ public class Residence : MonoBehaviour
       if (destinations.Count > 0)
       {
         var c = destinations[0];
-        factory.newHuman(this, c);
+        factory.NewHuman(this, c);
         destinations.Add(c);
       }
       remainTime += intervalSec;
     }
   }
+
+  public Residence NewInstance(Vector3 pos)
+  {
+    var obj = Instantiate(template);
+    obj.isTemplate = false;
+    obj.GetComponent<SpriteRenderer>().enabled = true;
+    obj.transform.position = pos;
+    listener.Fire(EventType.CREATED, obj);
+    return obj;
+  }
+
 }

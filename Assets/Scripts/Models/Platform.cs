@@ -42,6 +42,6 @@ public class Platform : MonoBehaviour
     on.platform = null;
     listener.Fire(EventType.MODIFIED, on);
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 }

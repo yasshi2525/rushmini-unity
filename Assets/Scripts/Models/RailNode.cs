@@ -64,7 +64,7 @@ public class RailNode : MonoBehaviour
   public void Remove()
   {
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 
   public void Handle() { }

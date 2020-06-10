@@ -33,6 +33,6 @@ public class ModelBehaviour<T> : MonoBehaviour
   public virtual void Remove()
   {
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 }

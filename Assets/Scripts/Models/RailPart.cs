@@ -51,7 +51,7 @@ public class RailPart : MonoBehaviour
   public void Remove()
   {
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 
   private float Width()

@@ -46,6 +46,6 @@ public class Human : MonoBehaviour
   public void Remove()
   {
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 }

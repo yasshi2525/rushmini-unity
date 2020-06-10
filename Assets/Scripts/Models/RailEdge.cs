@@ -84,6 +84,6 @@ public class RailEdge : MonoBehaviour
     listener.Fire(EventType.MODIFIED, from);
     listener.Fire(EventType.MODIFIED, to);
     listener.Fire(EventType.DELETED, this);
-    Destroy(this);
+    Destroy(gameObject);
   }
 }

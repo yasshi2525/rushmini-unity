@@ -12,13 +12,17 @@ public class Company : MonoBehaviour
    */
   public int attractiveness;
 
+  private void Awake()
+  {
+    if (isTemplate) template = this;
+  }
+
   private void Start()
   {
     if (isTemplate)
     {
-      template = this;
-      listener.Find<Company>(EventType.CREATED).AddListener(c => storage.Find<Company>().Add(c));
-      listener.Find<Company>(EventType.DELETED).AddListener(c => storage.Find<Company>().Remove(c));
+      listener.Add<Company>(EventType.CREATED, c => storage.Find<Company>().Add(c));
+      listener.Add<Company>(EventType.DELETED, c => storage.Find<Company>().Remove(c));
     }
   }
 
@@ -36,5 +40,11 @@ public class Company : MonoBehaviour
     obj.transform.position = pos;
     listener.Fire(EventType.CREATED, obj);
     return obj;
+  }
+
+  public void Remove()
+  {
+    listener.Fire(EventType.DELETED, this);
+    Destroy(this);
   }
 }

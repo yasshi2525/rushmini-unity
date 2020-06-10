@@ -64,25 +64,61 @@ class ExtendRailAction : Transactional
   }
 }
 
+class BuildStationAction : Transactional
+{
+  protected RailNode prevTail;
+  protected Platform prevPlatform;
+  public delegate void RollbackFn(RailNode rn, Platform p);
+  protected RollbackFn rollback;
+  protected Platform platform;
+
+  public BuildStationAction(RailNode tail, Platform tailP, RollbackFn fn)
+  {
+    prevTail = tail;
+    prevPlatform = tailP;
+    rollback = fn;
+  }
+
+  public Platform Act()
+  {
+    platform = prevTail.BuildStation();
+    return platform;
+  }
+
+  public Platform Act(RailNode rn)
+  {
+    platform = rn.BuildStation();
+    return platform;
+  }
+
+  void Transactional.Rollback()
+  {
+    rollback(prevTail, prevPlatform);
+    platform.station.gate.Remove();
+    platform.station.Remove();
+    platform.Remove();
+  }
+}
 
 public class Action : MonoBehaviour
 {
   public ModelFactory factory;
 
-  [System.NonSerialized] public List<Transactional> actions;
+  [System.NonSerialized] public Stack<Transactional> actions;
   [System.NonSerialized] public RailNode tailNode;
   [System.NonSerialized] public RailEdge tailEdge;
+  [System.NonSerialized] public Platform tailPlatform;
 
   public Action()
   {
-    actions = new List<Transactional>();
+    actions = new Stack<Transactional>();
   }
 
   public void StartRail(Vector3 pos)
   {
     var action = new StartRailAction(factory, tailNode, (prev) => { tailNode = prev; });
     tailNode = action.Act(pos);
-    actions.Add(action);
+    actions.Push(action);
   }
 
   public float ExtendRail(Vector3 pos)
@@ -90,7 +126,30 @@ public class Action : MonoBehaviour
     var action = new ExtendRailAction(tailNode, (prev) => { tailNode = prev; });
     tailEdge = action.Act(pos);
     tailNode = tailEdge.to;
-    actions.Add(action);
+    actions.Push(action);
     return Vector3.Magnitude(tailEdge.arrow);
+  }
+
+  public void BuildStation()
+  {
+    var action = new BuildStationAction(tailNode, tailPlatform, (prevNode, prevPlatform) =>
+    {
+      tailNode = prevNode;
+      tailPlatform = prevPlatform;
+    });
+    tailPlatform = action.Act();
+    actions.Push(action);
+  }
+
+  public void BuildStation(RailNode rn)
+  {
+    var action = new BuildStationAction(tailNode, tailPlatform, (prevNode, prevPlatform) =>
+    {
+      tailNode = prevNode;
+      tailPlatform = prevPlatform;
+    });
+    tailPlatform = action.Act(rn);
+    tailNode = rn;
+    actions.Push(action);
   }
 }

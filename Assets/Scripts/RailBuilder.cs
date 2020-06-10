@@ -12,12 +12,16 @@ public class RailBuilder : MonoBehaviour
     }
     if (Input.GetMouseButton(0))
     {
-      userResource.Extend(translateMousePoint(Input.mousePosition));
+      userResource.ExtendRail(translateMousePoint(Input.mousePosition));
+    }
+    if (Input.GetMouseButtonUp(0))
+    {
+      userResource.EndRail();
     }
   }
 
   private Vector3 translateMousePoint(Vector3 input)
   {
-    return Camera.main.ScreenToWorldPoint(new Vector3(input.x, input.y, Camera.main.nearClipPlane + 1.0f));
+    return Camera.main.ScreenToWorldPoint(new Vector3(input.x, input.y, 10.0f));
   }
 }

@@ -1,10 +1,14 @@
 using UnityEngine;
-public class Train : MonoBehaviour
+
+public class Gate : MonoBehaviour
 {
   public ModelListener listener;
   public ModelStorage storage;
-  private Train template;
+
+  private Gate template;
   private bool isTemplate = true;
+
+  [System.NonSerialized] public Station station;
 
   private void Awake()
   {
@@ -15,17 +19,17 @@ public class Train : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Train>(EventType.CREATED, t => storage.Find<Train>().Add(t));
-      listener.Add<Train>(EventType.DELETED, t => storage.Find<Train>().Remove(t));
+      listener.Add<Gate>(EventType.CREATED, st => storage.Find<Gate>().Add(st));
+      listener.Add<Gate>(EventType.DELETED, st => storage.Find<Gate>().Remove(st));
     }
   }
 
-  public Train NewInstance(Vector3 pos)
+  public Gate NewInstance(Station st)
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
-    obj.GetComponent<SpriteRenderer>().enabled = true;
-    obj.transform.position = pos;
+    obj.station = st;
+    obj.transform.position = st.transform.position;
     listener.Fire(EventType.CREATED, obj);
     return obj;
   }

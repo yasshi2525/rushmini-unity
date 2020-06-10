@@ -30,28 +30,25 @@ public class Residence : MonoBehaviour
   {
     destinations.RemoveAll(oth => oth == c);
   }
+  private void Awake()
+  {
+    if (isTemplate) template = this;
+  }
 
   // Start is called before the first frame update
   private void Start()
   {
     if (isTemplate)
     {
-      template = this;
-      listener.Find<Residence>(EventType.CREATED).AddListener(r => storage.Find<Residence>().Add(r));
-      listener.Find<Residence>(EventType.DELETED).AddListener(r => storage.Find<Residence>().Remove(r));
+      listener.Add<Residence>(EventType.CREATED, r => storage.Find<Residence>().Add(r));
+      listener.Add<Residence>(EventType.DELETED, r => storage.Find<Residence>().Remove(r));
     }
     destinations = new List<Company>();
     if (!isTemplate)
     {
       storage.Find<Company>().ForEach(c => AddDestination(c));
-      listener.Find<Company>(EventType.CREATED).AddListener(c =>
-      {
-        AddDestination(c);
-      });
-      listener.Find<Company>(EventType.DELETED).AddListener(c =>
-      {
-        DeleteDestination(c);
-      });
+      listener.Add<Company>(EventType.CREATED, c => AddDestination(c));
+      listener.Add<Company>(EventType.DELETED, c => DeleteDestination(c));
     }
   }
 
@@ -81,4 +78,9 @@ public class Residence : MonoBehaviour
     return obj;
   }
 
+  public void Remove()
+  {
+    listener.Fire(EventType.DELETED, this);
+    Destroy(this);
+  }
 }

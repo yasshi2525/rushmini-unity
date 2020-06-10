@@ -9,23 +9,25 @@ public class RailNode : MonoBehaviour
   private RailNode template;
 
   private bool isTemplate = true;
+  public bool isView = false;
 
   [System.NonSerialized] public List<RailEdge> outEdge;
   [System.NonSerialized] public List<RailEdge> inEdge;
+  [System.NonSerialized] public Platform platform;
 
   private void Awake()
   {
     outEdge = new List<RailEdge>();
     inEdge = new List<RailEdge>();
+    if (isTemplate) template = this;
   }
 
   private void Start()
   {
     if (isTemplate)
     {
-      template = this;
-      listener.Find<RailNode>(EventType.CREATED).AddListener(rn => storage.Find<RailNode>().Add(rn));
-      listener.Find<RailNode>(EventType.DELETED).AddListener(rn => storage.Find<RailNode>().Remove(rn));
+      listener.Add<RailNode>(EventType.CREATED, rn => storage.Find<RailNode>().Add(rn));
+      listener.Add<RailNode>(EventType.DELETED, rn => storage.Find<RailNode>().Remove(rn));
     }
   }
 
@@ -34,6 +36,12 @@ public class RailNode : MonoBehaviour
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.transform.position = pos;
+    if (isView)
+    {
+      obj.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+      obj.GetComponent<MeshRenderer>().enabled = true;
+      obj.GetComponent<MeshRenderer>().material.color = Color.green;
+    }
     listener.Fire(EventType.CREATED, obj);
     return obj;
   }
@@ -48,10 +56,20 @@ public class RailNode : MonoBehaviour
     return outE;
   }
 
+  public Platform BuildStation()
+  {
+    return factory.NewPlatform(this, factory.NewStation());
+  }
+
   public void Remove()
   {
     listener.Fire(EventType.DELETED, this);
+    Destroy(this);
   }
+
+  public void Handle() { }
+
+  public void GiveUp() { }
 
   /**
   * from から to へ ratio([0, 1]) 進んだ点を返す
@@ -80,5 +98,40 @@ public class RailNode : MonoBehaviour
     else if (degree <= 120) result = Div(1.0f, 2.0f, (degree - 90) / 30);
     else if (degree <= 135) result = Div(2.0f, 3.35f, (degree - 120) / 45);
     return result;
+  }
+
+  private float Slide(RailEdge prev, RailEdge next, float slide)
+  {
+    var angle = Vector3.SignedAngle(prev.arrow, next.arrow, Vector3.forward);
+    if (angle < 0) angle = 360 + angle;
+    return slide * Mathf.Sin(angle / 180 * Mathf.PI) * CurveRatio(angle);
+  }
+
+  /**
+    * この地点を目的地/出発地とする上りRailEdgeが引き伸ばす距離を返します
+    */
+  public float Left(float slide)
+  {
+    if (inEdge.Count == 2 && outEdge.Count == 2)
+    {
+      // 最初に到達したのが前の上り
+      // 最後に出発したのが次の上り
+      return Slide(inEdge[0], outEdge[1], slide);
+    }
+    return 0;
+  }
+
+  /**
+   * この地点を目的地/出発地とする下りRailEdgeが引き伸ばす距離を返します
+   */
+  public float Right(float slide)
+  {
+    if (inEdge.Count == 2 && outEdge.Count == 2)
+    {
+      // 最後に到達したのが前の下り
+      // 最初に出発したのが次の上り
+      return Slide(inEdge[1], outEdge[0], slide);
+    }
+    return 0;
   }
 }

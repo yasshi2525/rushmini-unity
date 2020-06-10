@@ -23,7 +23,7 @@ public class ModelListener : MonoBehaviour
     storage = new Dictionary<EventType, IDictionary<Type, object>>();
   }
 
-  private IDictionary<Type, object> FindHandlers(EventType ev)
+  private IDictionary<Type, object> FindListeners(EventType ev)
   {
     if (!storage.ContainsKey(ev))
     {
@@ -32,19 +32,29 @@ public class ModelListener : MonoBehaviour
     return storage[ev];
   }
 
-  public UnityEvent<T> Find<T>(EventType ev)
+  private ModelEvent<T> FindEvent<T>(EventType ev)
   {
     var key = typeof(T);
-    var handlers = FindHandlers(ev);
-    if (!handlers.ContainsKey(key))
+    var listeners = FindListeners(ev);
+    if (!listeners.ContainsKey(key))
     {
-      handlers.Add(key, new ModelEvent<T>());
+      listeners.Add(key, new ModelEvent<T>());
     }
-    return handlers[key] as UnityEvent<T>;
+    return listeners[key] as ModelEvent<T>;
+  }
+
+  public void Add<T>(EventType ev, UnityAction<T> listener)
+  {
+    FindEvent<T>(ev).AddListener(listener);
+  }
+
+  public void Add<T>(EventType ev, T obj, UnityAction<T> listener)
+  {
+    FindEvent<T>(ev).AddListener(o => { if (o.Equals(obj)) listener(o); });
   }
 
   public void Fire<T>(EventType ev, T obj)
   {
-    Find<T>(ev).Invoke(obj);
+    FindEvent<T>(ev).Invoke(obj);
   }
 }

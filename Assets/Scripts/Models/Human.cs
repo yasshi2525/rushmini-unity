@@ -9,13 +9,17 @@ public class Human : MonoBehaviour
   [System.NonSerialized] public Company destination;
   public float rand = 0.1f;
 
+  private void Awake()
+  {
+    if (isTemplate) template = this;
+  }
+
   private void Start()
   {
     if (isTemplate)
     {
-      template = this;
-      listener.Find<Human>(EventType.CREATED).AddListener(h => storage.Find<Human>().Add(h));
-      listener.Find<Human>(EventType.DELETED).AddListener(h => storage.Find<Human>().Remove(h));
+      listener.Add<Human>(EventType.CREATED, h => storage.Find<Human>().Add(h));
+      listener.Add<Human>(EventType.DELETED, h => storage.Find<Human>().Remove(h));
     }
   }
 
@@ -30,12 +34,18 @@ public class Human : MonoBehaviour
     var theta = Random.Range(0f, Mathf.PI * 2);
 
     var rLoc = r.GetComponent<SpriteRenderer>().transform.position;
-    obj.transform.position = new Vector3(
-      rLoc.x + len * Mathf.Cos(theta),
-      rLoc.y + len * Mathf.Sin(theta),
-      rLoc.z
+    obj.transform.position = rLoc + new Vector3(
+      len * Mathf.Cos(theta),
+      len * Mathf.Sin(theta),
+      0
     );
     listener.Fire(EventType.CREATED, obj);
     return obj;
+  }
+
+  public void Remove()
+  {
+    listener.Fire(EventType.DELETED, this);
+    Destroy(this);
   }
 }

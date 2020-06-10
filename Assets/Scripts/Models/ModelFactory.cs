@@ -8,6 +8,10 @@ public class ModelFactory : MonoBehaviour
   public Residence r;
   public RailNode rn;
   public RailEdge re;
+  public RailPart rp;
+  public Station st;
+  public Platform p;
+  public Gate g;
   public Train t;
   public Human h;
 
@@ -29,6 +33,26 @@ public class ModelFactory : MonoBehaviour
   public RailEdge NewRailEdge(RailNode from, RailNode to, bool isOutbound)
   {
     return re.NewInstance(from, to, isOutbound);
+  }
+
+  public RailPart NewRailPart(RailEdge parent, bool isForward)
+  {
+    return rp.NewInstance(parent, isForward);
+  }
+
+  public Station NewStation()
+  {
+    return st.NewInstance();
+  }
+
+  public Gate NewGate(Station s)
+  {
+    return g.NewInstance(s);
+  }
+
+  public Platform NewPlatform(RailNode on, Station s)
+  {
+    return p.NewInstance(on, s);
   }
 
   public Train NewTrain(Vector3 pos)

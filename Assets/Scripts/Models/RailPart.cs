@@ -71,12 +71,12 @@ public class RailPart : MonoBehaviour
 
   private float OffsetX()
   {
-    return Offset(Mathf.Cos);
+    return Offset((v) => Mathf.Cos(v));
   }
 
   private float OffsetY()
   {
-    return Offset(Mathf.Sin);
+    return Offset((v) => Mathf.Sin(v));
   }
 
   private void SetTransform()

@@ -8,7 +8,7 @@ public class Gate : MonoBehaviour
   private Gate template;
   private bool isTemplate = true;
 
-  [System.NonSerialized] public Station station;
+  [System.NonSerialized] public Station BelongsTo;
 
   private void Awake()
   {
@@ -28,7 +28,7 @@ public class Gate : MonoBehaviour
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
-    obj.station = st;
+    obj.BelongsTo = st;
     obj.transform.position = st.transform.position;
     listener.Fire(EventType.CREATED, obj);
     return obj;

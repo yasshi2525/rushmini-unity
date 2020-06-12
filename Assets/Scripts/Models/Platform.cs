@@ -9,13 +9,13 @@ public class Platform : MonoBehaviour
   private Platform template;
   private bool isTemplate = true;
 
-  [System.NonSerialized] public RailNode on;
-  [System.NonSerialized] public Station station;
-  [System.NonSerialized] public List<DeptTask> depts;
+  [System.NonSerialized] public RailNode On;
+  [System.NonSerialized] public Station BelongsTo;
+  [System.NonSerialized] public List<DeptTask> Depts;
 
   private void Awake()
   {
-    depts = new List<DeptTask>();
+    Depts = new List<DeptTask>();
     if (isTemplate) template = this;
   }
 
@@ -32,8 +32,8 @@ public class Platform : MonoBehaviour
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
-    obj.on = on;
-    on.platform = obj;
+    obj.On = on;
+    on.StandsOver = obj;
     obj.transform.position = on.transform.position;
     st.AddPlatform(obj);
     listener.Fire(EventType.CREATED, obj);
@@ -42,8 +42,8 @@ public class Platform : MonoBehaviour
 
   public void Remove()
   {
-    on.platform = null;
-    listener.Fire(EventType.MODIFIED, on);
+    On.StandsOver = null;
+    listener.Fire(EventType.MODIFIED, On);
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
   }

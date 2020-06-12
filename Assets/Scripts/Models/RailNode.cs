@@ -10,16 +10,16 @@ public class RailNode : MonoBehaviour
   private RailNode template;
 
   private bool isTemplate = true;
-  public bool isView = false;
+  public bool IsView = false;
 
-  [System.NonSerialized] public List<RailEdge> outEdge;
-  [System.NonSerialized] public List<RailEdge> inEdge;
-  [System.NonSerialized] public Platform platform;
+  [System.NonSerialized] public List<RailEdge> OutEdge;
+  [System.NonSerialized] public List<RailEdge> InEdge;
+  [System.NonSerialized] public Platform StandsOver;
 
   private void Awake()
   {
-    outEdge = new List<RailEdge>();
-    inEdge = new List<RailEdge>();
+    OutEdge = new List<RailEdge>();
+    InEdge = new List<RailEdge>();
     if (isTemplate) template = this;
   }
 
@@ -37,7 +37,7 @@ public class RailNode : MonoBehaviour
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.transform.position = pos;
-    if (isView)
+    if (IsView)
     {
       obj.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
       obj.GetComponent<MeshRenderer>().enabled = true;
@@ -52,14 +52,14 @@ public class RailNode : MonoBehaviour
     var tail = factory.NewRailNode(pos);
     var outE = factory.NewRailEdge(this, tail, true);
     var inE = factory.NewRailEdge(tail, this, false);
-    outE.reverse = inE;
-    inE.reverse = outE;
+    outE.Reverse = inE;
+    inE.Reverse = outE;
     return outE;
   }
 
   public Platform BuildStation()
   {
-    if (platform)
+    if (StandsOver)
     {
       throw new ArgumentException("try to build station on already deployed");
     }
@@ -103,7 +103,7 @@ public class RailNode : MonoBehaviour
 
   private float Slide(RailEdge prev, RailEdge next, float slide)
   {
-    var angle = Vector3.SignedAngle(prev.arrow, next.arrow, Vector3.forward);
+    var angle = Vector3.SignedAngle(prev.Arrow, next.Arrow, Vector3.forward);
     if (angle < 0) angle = 360 + angle;
     return slide * Mathf.Sin(angle / 180 * Mathf.PI) * CurveRatio(angle);
   }
@@ -113,11 +113,11 @@ public class RailNode : MonoBehaviour
     */
   public float Left(float slide)
   {
-    if (inEdge.Count == 2 && outEdge.Count == 2)
+    if (InEdge.Count == 2 && OutEdge.Count == 2)
     {
       // 最初に到達したのが前の上り
       // 最後に出発したのが次の上り
-      return Slide(inEdge[0], outEdge[1], slide);
+      return Slide(InEdge[0], OutEdge[1], slide);
     }
     return 0;
   }
@@ -127,11 +127,11 @@ public class RailNode : MonoBehaviour
    */
   public float Right(float slide)
   {
-    if (inEdge.Count == 2 && outEdge.Count == 2)
+    if (InEdge.Count == 2 && OutEdge.Count == 2)
     {
       // 最後に到達したのが前の下り
       // 最初に出発したのが次の上り
-      return Slide(inEdge[1], outEdge[0], slide);
+      return Slide(InEdge[1], OutEdge[0], slide);
     }
     return 0;
   }

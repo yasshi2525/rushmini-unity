@@ -5,30 +5,30 @@ public abstract class LineTask
 {
   protected ModelStorage storage;
   protected ModelListener listener;
-  public RailLine parent;
-  public LineTask prev;
-  public LineTask next;
-  public List<Train> trains;
+  public RailLine Parent;
+  public LineTask Prev;
+  public LineTask Next;
+  public List<Train> Trains;
 
   protected LineTask(ModelStorage db, ModelListener lis)
   {
-    trains = new List<Train>();
+    Trains = new List<Train>();
     listener = lis;
     storage = db;
   }
 
   public LineTask(ModelStorage db, ModelListener lis, RailLine line) : this(db, lis)
   {
-    parent = line;
-    prev = this;
-    next = this;
+    Parent = line;
+    Prev = this;
+    Next = this;
   }
 
   public LineTask(ModelStorage db, ModelListener lis, RailLine line, LineTask lt) : this(db, lis)
   {
-    parent = line;
-    prev = lt;
-    prev.next = this;
+    Parent = line;
+    Prev = lt;
+    Prev.Next = this;
   }
 
   public abstract RailNode Departure { get; }
@@ -61,15 +61,15 @@ public abstract class LineTask
     {
       throw new ArgumentException("try to insert non-neighbored edge");
     }
-    var outBound = new EdgeTask(storage, listener, parent, edge, this);
+    var outBound = new EdgeTask(storage, listener, Parent, edge, this);
     EdgeTask inbound;
-    if (!edge.to.platform)
+    if (!edge.To.StandsOver)
     {
-      inbound = new EdgeTask(storage, listener, parent, edge.reverse, outBound);
+      inbound = new EdgeTask(storage, listener, Parent, edge.Reverse, outBound);
     }
     else
     {
-      inbound = new EdgeTask(storage, listener, parent, edge.reverse, new DeptTask(storage, listener, parent, edge.to.platform, outBound));
+      inbound = new EdgeTask(storage, listener, Parent, edge.Reverse, new DeptTask(storage, listener, Parent, edge.To.StandsOver, outBound));
     }
     return inbound;
   }
@@ -86,15 +86,15 @@ public abstract class LineTask
    */
   public void Shrink(LineTask to)
   {
-    var obj = next;
+    var obj = Next;
     while (obj != to)
     {
-      obj.trains.ForEach(t => t.Skip(to));
+      obj.Trains.ForEach(t => t.Skip(to));
       obj.Remove();
-      obj = obj.next;
+      obj = obj.Next;
     }
-    next = to;
-    to.prev = this;
+    Next = to;
+    to.Prev = this;
     listener.Fire(EventType.MODIFIED, this);
     listener.Fire(EventType.MODIFIED, to);
   }

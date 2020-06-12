@@ -4,12 +4,12 @@ using UnityEngine;
 public class TrainExecutor
 {
   protected Train train;
-  public TrainTask current;
+  public TrainTask Current;
 
   public TrainExecutor(Train t, LineTask lt)
   {
     train = t;
-    current = Generate(lt, () => Next());
+    Current = Generate(lt, () => Next());
   }
 
   protected TrainTask Generate(LineTask lt, TrainTask.OnComplete fn)
@@ -19,25 +19,25 @@ public class TrainExecutor
     throw new ArgumentException("invalid type" + lt);
   }
 
-  public Vector3 Position { get { return current.Position; } }
+  public Vector3 Position { get { return Current.Position; } }
 
   public void Update()
   {
     var remain = Time.deltaTime;
     while (remain > 0)
     {
-      remain = current.Execute(remain);
+      remain = Current.Execute(remain);
     }
   }
 
   public void Skip(LineTask to)
   {
-    current = Generate(to, () => Next());
+    Current = Generate(to, () => Next());
   }
 
   protected void Next()
   {
-    current.Origin.trains.Remove(train);
-    current = Generate(current.Origin.next, () => Next());
+    Current.Origin.Trains.Remove(train);
+    Current = Generate(Current.Origin.Next, () => Next());
   }
 }

@@ -22,8 +22,8 @@ namespace Tests
       yield return null;
       var inst = utils.rn.NewInstance(new Vector3(1f, 2f, 3f));
       yield return null;
-      Assert.AreEqual(utils.storage.List<RailNode>().Count, 1);
-      Assert.AreEqual(inst.transform.position, new Vector3(1f, 2f, 3f));
+      Assert.AreEqual(1, utils.storage.List<RailNode>().Count);
+      Assert.AreEqual(new Vector3(1f, 2f, 3f), inst.transform.position);
     }
 
     [UnityTest]
@@ -34,17 +34,17 @@ namespace Tests
       yield return null;
       var outE = inst.Extend(new Vector3(4f, 5f, 6f));
       yield return null;
-      Assert.AreEqual(utils.storage.List<RailNode>().Count, 2);
-      Assert.AreEqual(inst.inEdge.Count, 1);
-      Assert.AreEqual(inst.outEdge.Count, 1);
-      Assert.AreEqual(inst.outEdge[0].from, inst);
-      Assert.AreEqual(inst.inEdge[0].to, inst);
-      Assert.AreEqual(inst.outEdge[0], outE);
-      Assert.AreEqual(inst.inEdge[0], outE.reverse);
-      Assert.AreEqual(inst.outEdge[0].from.transform.position, new Vector3(1f, 2f, 3f));
-      Assert.AreEqual(inst.outEdge[0].to.transform.position, new Vector3(4f, 5f, 6f));
-      Assert.AreEqual(inst.inEdge[0].from.transform.position, new Vector3(4f, 5f, 6f));
-      Assert.AreEqual(inst.inEdge[0].to.transform.position, new Vector3(1f, 2f, 3f));
+      Assert.AreEqual(2, utils.storage.List<RailNode>().Count);
+      Assert.AreEqual(1, inst.InEdge.Count);
+      Assert.AreEqual(1, inst.OutEdge.Count);
+      Assert.AreSame(inst, inst.OutEdge[0].From);
+      Assert.AreSame(inst, inst.InEdge[0].To);
+      Assert.AreSame(outE, inst.OutEdge[0]);
+      Assert.AreSame(outE.Reverse, inst.InEdge[0]);
+      Assert.AreEqual(new Vector3(1f, 2f, 3f), inst.OutEdge[0].From.transform.position);
+      Assert.AreEqual(new Vector3(4f, 5f, 6f), inst.OutEdge[0].To.transform.position);
+      Assert.AreEqual(new Vector3(4f, 5f, 6f), inst.InEdge[0].From.transform.position);
+      Assert.AreEqual(new Vector3(1f, 2f, 3f), inst.InEdge[0].To.transform.position);
     }
 
     [UnityTest]
@@ -54,8 +54,8 @@ namespace Tests
       var inst = utils.rn.NewInstance(new Vector3(1f, 2f, 3f));
       var p = inst.BuildStation();
       yield return null;
-      Assert.AreEqual(inst.platform, p);
-      Assert.AreEqual(p.on, inst);
+      Assert.AreSame(inst.StandsOver, p);
+      Assert.AreSame(p.On, inst);
     }
   }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class TestUtils
 {
+  public float DELTA = 0.0001f;
   public ModelStorage storage;
   public ModelListener listener;
   public ModelFactory factory;

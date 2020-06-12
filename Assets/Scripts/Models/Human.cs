@@ -5,9 +5,9 @@ public class Human : MonoBehaviour
   public ModelStorage storage;
   private Human template;
   private bool isTemplate = true;
-  [System.NonSerialized] public Residence departure;
-  [System.NonSerialized] public Company destination;
-  public float rand = 0.1f;
+  [System.NonSerialized] public Residence Departure;
+  [System.NonSerialized] public Company Destination;
+  public float Rand = 0.1f;
 
   private void Awake()
   {
@@ -27,10 +27,10 @@ public class Human : MonoBehaviour
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
-    obj.departure = r;
-    obj.destination = c;
+    obj.Departure = r;
+    obj.Destination = c;
     obj.GetComponent<SpriteRenderer>().enabled = true;
-    var len = Random.Range(0f, obj.rand);
+    var len = Random.Range(0f, obj.Rand);
     var theta = Random.Range(0f, Mathf.PI * 2);
 
     var rLoc = r.GetComponent<SpriteRenderer>().transform.position;

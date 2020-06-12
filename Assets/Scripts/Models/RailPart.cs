@@ -6,13 +6,13 @@ public class RailPart : MonoBehaviour
   public ModelListener listener;
   private RailPart template;
   private bool isTemplate = true;
-  [System.NonSerialized] public RailEdge parent;
-  [System.NonSerialized] public bool isForwardPart;
+  [System.NonSerialized] public RailEdge Parent;
+  [System.NonSerialized] public bool IsForwardPart;
 
   public Material material;
   public Color color = Color.white;
-  [Range(0, 1)] public float band = 0.1f;
-  [Range(0, 1)] public float slide = 0.1f;
+  [Range(0, 1)] public float Band = 0.1f;
+  [Range(0, 1)] public float Slide = 0.1f;
 
   private float width;
 
@@ -42,8 +42,8 @@ public class RailPart : MonoBehaviour
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.GetComponent<MeshRenderer>().enabled = true;
-    obj.parent = parent;
-    obj.isForwardPart = isForward;
+    obj.Parent = parent;
+    obj.IsForwardPart = isForward;
     obj.SetTransform();
     return obj;
   }
@@ -56,8 +56,8 @@ public class RailPart : MonoBehaviour
 
   private float Width()
   {
-    var rn = isForwardPart ? parent.to : parent.from;
-    var w = parent.arrow.magnitude / 4 + (parent.isOutbound ? rn.Left(slide) : rn.Right(slide)) / 2;
+    var rn = IsForwardPart ? Parent.To : Parent.From;
+    var w = Parent.Arrow.magnitude / 4 + (Parent.IsOutbound ? rn.Left(Slide) : rn.Right(Slide)) / 2;
     return Mathf.Max(w, 0);
   }
 
@@ -65,8 +65,8 @@ public class RailPart : MonoBehaviour
 
   private float Offset(PosFn fn)
   {
-    var angle = Vector3.SignedAngle(Vector3.left, parent.arrow, Vector3.forward);
-    return slide * fn((angle + 90) / 180 * Mathf.PI) - (isForwardPart ? 1 : -1) * width * fn(angle / 180 * Mathf.PI);
+    var angle = Vector3.SignedAngle(Vector3.left, Parent.Arrow, Vector3.forward);
+    return Slide * fn((angle + 90) / 180 * Mathf.PI) - (IsForwardPart ? 1 : -1) * width * fn(angle / 180 * Mathf.PI);
   }
 
   private float OffsetX()
@@ -82,8 +82,8 @@ public class RailPart : MonoBehaviour
   private void SetTransform()
   {
     width = Width();
-    transform.position = parent.transform.position + new Vector3(OffsetX(), OffsetY(), band / 2);
-    transform.localScale = new Vector3(band, width, band);
-    transform.localRotation = Quaternion.Euler(0f, 0f, Vector3.SignedAngle(Vector3.up, parent.arrow, Vector3.forward));
+    transform.position = Parent.transform.position + new Vector3(OffsetX(), OffsetY(), Band / 2);
+    transform.localScale = new Vector3(Band, width, Band);
+    transform.localRotation = Quaternion.Euler(0f, 0f, Vector3.SignedAngle(Vector3.up, Parent.Arrow, Vector3.forward));
   }
 }

@@ -5,9 +5,9 @@ public class Train : MonoBehaviour
   public ModelStorage storage;
   private Train template;
   private bool isTemplate = true;
-  public float stay = 2f;
-  public float mobility = 6f;
-  public float speed = 1.5f;
+  public float Stay = 2f;
+  public float Mobility = 6f;
+  public float Speed = 1.5f;
   private TrainExecutor executor;
 
   private void Awake()
@@ -51,7 +51,7 @@ public class Train : MonoBehaviour
 
   public void Remove()
   {
-    executor.current.Origin.trains.Remove(this);
+    executor.Current.Origin.Trains.Remove(this);
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
   }
@@ -62,5 +62,5 @@ public class Train : MonoBehaviour
     listener.Fire(EventType.MODIFIED, this);
   }
 
-  public LineTask Current { get { return executor.current.Origin; } }
+  public LineTask Current { get { return executor.Current.Origin; } }
 }

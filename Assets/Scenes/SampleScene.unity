@@ -702,10 +702,10 @@ MonoBehaviour:
   factory: {fileID: 1475604691}
   storage: {fileID: 1189923521}
   maxTry: 50
-  width: 652.8
-  height: 499.2
-  sparse: 150
-  padding: 100
+  width: 6.528
+  height: 4.992
+  sparse: 1.5
+  padding: 1
 --- !u!4 &650653178
 Transform:
   m_ObjectHideFlags: 0
@@ -840,6 +840,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
+  stay: 2
+  mobility: 6
+  speed: 1.5
 --- !u!212 &909370554
 SpriteRenderer:
   m_ObjectHideFlags: 0

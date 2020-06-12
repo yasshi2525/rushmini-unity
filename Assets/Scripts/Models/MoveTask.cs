@@ -8,7 +8,7 @@ public class MoveTask : TrainTask
   public MoveTask(Train t, EdgeTask edge, OnComplete fn) : base(t, fn)
   {
     org = edge;
-    org.trains.Add(t);
+    org.Trains.Add(t);
   }
 
   public override Vector3 Position
@@ -30,7 +30,7 @@ public class MoveTask : TrainTask
 
   protected override float Estimate()
   {
-    return (1 - progress) * org.Length / train.speed;
+    return (1 - progress) * org.Length / train.Speed;
   }
 
   protected override float OnFullConsume(float available)
@@ -42,7 +42,7 @@ public class MoveTask : TrainTask
 
   protected override float OnPartialConsume(float available)
   {
-    progress += available * train.speed / Origin.Length;
+    progress += available * train.Speed / Origin.Length;
     return 0;
   }
 

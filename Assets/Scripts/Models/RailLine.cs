@@ -8,7 +8,7 @@ public class RailLine
 {
   protected ModelListener listener;
   protected ModelStorage storage;
-  public DeptTask top;
+  public DeptTask Top;
 
   public RailLine(ModelStorage db, ModelListener lis)
   {
@@ -26,11 +26,11 @@ public class RailLine
 
   public void StartLine(Platform p)
   {
-    if (top != null)
+    if (Top != null)
     {
       throw new ArgumentException("try to start already constructed line");
     }
-    top = new DeptTask(storage, listener, this, p);
+    Top = new DeptTask(storage, listener, this, p);
   }
 
   public delegate bool Cond(LineTask lt);
@@ -40,17 +40,17 @@ public class RailLine
    */
   public List<LineTask> Filter(Cond cond)
   {
-    if (top == null) return new List<LineTask>();
+    if (Top == null) return new List<LineTask>();
     var result = new List<LineTask>();
-    LineTask current = top;
+    LineTask current = Top;
     do
     {
       if (cond(current))
       {
         result.Add(current);
       }
-      current = current.next;
-    } while (current != top);
+      current = current.Next;
+    } while (current != Top);
     return result;
   }
 
@@ -61,7 +61,7 @@ public class RailLine
   {
     // 隣接していないタスクはスキップ
     // 駅に到着するタスクはスキップ。発車タスクの後に挿入する
-    return Filter((lt) => lt.IsNeighbor(re) && lt.next is EdgeTask);
+    return Filter((lt) => lt.IsNeighbor(re) && lt.Next is EdgeTask);
   }
 
   /**
@@ -92,15 +92,15 @@ public class RailLine
     */
   private LineTask FindFarLeft(RailEdge re)
   {
-    if (top == null) return null;
+    if (Top == null) return null;
     // セルフループの場合自身を返す
-    if (top.next == top)
+    if (Top.Next == Top)
     {
-      if (!top.IsNeighbor(re))
+      if (!Top.IsNeighbor(re))
       {
         throw new ArgumentException("top is not neighbored edge");
       }
-      return top;
+      return Top;
     }
     // 隣接するタスクを絞り込む
     var neighbors = FilterNeighbors(re);
@@ -117,7 +117,7 @@ public class RailLine
   public (LineTask, LineTask) InsertEdge(RailEdge re)
   {
     var pivot = FindFarLeft(re);
-    var prevNext = pivot.next;
+    var prevNext = pivot.Next;
     pivot.InsertEdge(re);
     return (pivot, prevNext);
   }
@@ -127,12 +127,12 @@ public class RailLine
    */
   public void InsertPlatform(Platform platform)
   {
-    Filter(lt => lt.Destination == platform.on).ForEach(lt => lt.InsertPlatform(platform));
+    Filter(lt => lt.Destination == platform.On).ForEach(lt => lt.InsertPlatform(platform));
   }
 
   public void RemovePlatform(Platform platform)
   {
-    Filter(lt => lt is DeptTask && (lt as DeptTask).stay == platform).ForEach(dept => dept.prev.Shrink(dept.next));
+    Filter(lt => lt is DeptTask && (lt as DeptTask).Stay == platform).ForEach(dept => dept.Prev.Shrink(dept.Next));
   }
 
   public float Length

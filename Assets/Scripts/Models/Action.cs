@@ -57,9 +57,9 @@ class ExtendRailAction : Transactional
   void Transactional.Rollback()
   {
     rollback(prevTail);
-    re.to.Remove();
+    re.To.Remove();
     re.Remove();
-    re.reverse.Remove();
+    re.Reverse.Remove();
   }
 }
 
@@ -93,8 +93,8 @@ class BuildStationAction : Transactional
   void Transactional.Rollback()
   {
     rollback(prevTail, prevPlatform);
-    platform.station.gate.Remove();
-    platform.station.Remove();
+    platform.BelongsTo.Under.Remove();
+    platform.BelongsTo.Remove();
     platform.Remove();
   }
 }
@@ -152,8 +152,8 @@ class StartLineAction : Transactional
 
   void Transactional.Rollback()
   {
-    line.top.Remove();
-    line.top = null;
+    line.Top.Remove();
+    line.Top = null;
   }
 }
 
@@ -230,112 +230,112 @@ public class Action
   protected ModelStorage storage;
   protected ModelListener listener;
 
-  public LinkedList<Transactional> actions;
-  public RailNode tailNode;
-  public RailEdge tailEdge;
-  public Platform tailPlatform;
-  public RailLine tailLine;
+  public LinkedList<Transactional> Actions;
+  public RailNode TailNode;
+  public RailEdge TailEdge;
+  public Platform TailPlatform;
+  public RailLine TailLine;
 
   public Action(ModelStorage db, ModelListener lis, ModelFactory f)
   {
     storage = db;
     listener = lis;
     factory = f;
-    actions = new LinkedList<Transactional>();
+    Actions = new LinkedList<Transactional>();
   }
 
   public void StartRail(Vector3 pos)
   {
-    var action = new StartRailAction(factory, tailNode, (prev) => { tailNode = prev; });
-    tailNode = action.Act(pos);
-    actions.AddLast(action);
+    var action = new StartRailAction(factory, TailNode, (prev) => { TailNode = prev; });
+    TailNode = action.Act(pos);
+    Actions.AddLast(action);
   }
 
   public float ExtendRail(Vector3 pos)
   {
-    var action = new ExtendRailAction(tailNode, (prev) => { tailNode = prev; });
-    tailEdge = action.Act(pos);
-    tailNode = tailEdge.to;
-    actions.AddLast(action);
-    return Vector3.Magnitude(tailEdge.arrow);
+    var action = new ExtendRailAction(TailNode, (prev) => { TailNode = prev; });
+    TailEdge = action.Act(pos);
+    TailNode = TailEdge.To;
+    Actions.AddLast(action);
+    return Vector3.Magnitude(TailEdge.Arrow);
   }
 
   public void BuildStation()
   {
-    var action = new BuildStationAction(tailNode, tailPlatform, (prevNode, prevPlatform) =>
+    var action = new BuildStationAction(TailNode, TailPlatform, (prevNode, prevPlatform) =>
     {
-      tailNode = prevNode;
-      tailPlatform = prevPlatform;
+      TailNode = prevNode;
+      TailPlatform = prevPlatform;
     });
-    tailPlatform = action.Act();
-    actions.AddLast(action);
+    TailPlatform = action.Act();
+    Actions.AddLast(action);
   }
 
   public void BuildStation(RailNode rn)
   {
-    var action = new BuildStationAction(tailNode, tailPlatform, (prevNode, prevPlatform) =>
+    var action = new BuildStationAction(TailNode, TailPlatform, (prevNode, prevPlatform) =>
     {
-      tailNode = prevNode;
-      tailPlatform = prevPlatform;
+      TailNode = prevNode;
+      TailPlatform = prevPlatform;
     });
-    tailPlatform = action.Act(rn);
-    tailNode = rn;
-    actions.AddLast(action);
+    TailPlatform = action.Act(rn);
+    TailNode = rn;
+    Actions.AddLast(action);
   }
 
   public void CreateLine()
   {
     var action = new CreateLineAction(storage, listener);
-    tailLine = action.Act();
-    actions.AddLast(action);
+    TailLine = action.Act();
+    Actions.AddLast(action);
   }
 
   public void StartLine()
   {
-    var action = new StartLineAction(tailLine);
-    action.Act(tailPlatform);
-    actions.AddLast(action);
+    var action = new StartLineAction(TailLine);
+    action.Act(TailPlatform);
+    Actions.AddLast(action);
   }
 
   public void InsertEdge()
   {
-    var action = new InsertEdgeAction(tailLine);
-    action.Act(tailEdge);
-    actions.AddLast(action);
+    var action = new InsertEdgeAction(TailLine);
+    action.Act(TailEdge);
+    Actions.AddLast(action);
   }
 
   public void InsertPlatform()
   {
-    var action = new InsertPlatformAction(tailLine);
-    action.Act(tailPlatform);
-    actions.AddLast(action);
+    var action = new InsertPlatformAction(TailLine);
+    action.Act(TailPlatform);
+    Actions.AddLast(action);
   }
 
   public void InsertPlatform(Platform p)
   {
-    var action = new InsertPlatformAction(tailLine);
+    var action = new InsertPlatformAction(TailLine);
     action.Act(p);
-    actions.AddLast(action);
+    Actions.AddLast(action);
   }
 
   public void DeployTrain(LineTask lt)
   {
     var action = new DeployTrainAction(factory);
     action.Act(lt);
-    actions.AddLast(action);
+    Actions.AddLast(action);
   }
 
   public void Commit()
   {
-    actions.Clear();
+    Actions.Clear();
   }
 
   public void Rollback()
   {
-    while (actions.Count > 0)
+    while (Actions.Count > 0)
     {
-      actions.Last.Value.Rollback();
-      actions.RemoveLast();
+      Actions.Last.Value.Rollback();
+      Actions.RemoveLast();
     }
   }
 }

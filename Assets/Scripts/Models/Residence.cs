@@ -12,23 +12,23 @@ public class Residence : MonoBehaviour
    * 会社の魅力度に応じて住民をスポーンするため、
    * 魅力度の数だけ同じ会社を行き先に設定する
    */
-  [System.NonSerialized] public List<Company> destinations;
+  [System.NonSerialized] public List<Company> Destinations;
 
-  public float intervalSec = 0.5f;
+  public float IntervalSec = 0.5f;
 
   private float remainTime;
 
   private void AddDestination(Company c)
   {
-    for (int i = 0; i < c.attractiveness; i++)
+    for (int i = 0; i < c.Attractiveness; i++)
     {
-      destinations.Add(c);
+      Destinations.Add(c);
     }
   }
 
   private void DeleteDestination(Company c)
   {
-    destinations.RemoveAll(oth => oth == c);
+    Destinations.RemoveAll(oth => oth == c);
   }
   private void Awake()
   {
@@ -43,7 +43,7 @@ public class Residence : MonoBehaviour
       listener.Add<Residence>(EventType.CREATED, r => storage.Add(r));
       listener.Add<Residence>(EventType.DELETED, r => storage.Remove(r));
     }
-    destinations = new List<Company>();
+    Destinations = new List<Company>();
     if (!isTemplate)
     {
       storage.List<Company>().ForEach(c => AddDestination(c));
@@ -58,13 +58,13 @@ public class Residence : MonoBehaviour
     remainTime -= Time.deltaTime;
     if (remainTime < 0)
     {
-      if (destinations.Count > 0)
+      if (Destinations.Count > 0)
       {
-        var c = destinations[0];
+        var c = Destinations[0];
         factory.NewHuman(this, c);
-        destinations.Add(c);
+        Destinations.Add(c);
       }
-      remainTime += intervalSec;
+      remainTime += IntervalSec;
     }
   }
 

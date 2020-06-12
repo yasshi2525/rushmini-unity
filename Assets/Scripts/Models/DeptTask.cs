@@ -4,28 +4,28 @@ using UnityEngine;
 
 public class DeptTask : LineTask
 {
-  public Platform stay;
+  public Platform Stay;
 
   public DeptTask(ModelStorage db, ModelListener lis, RailLine l, Platform p) : base(db, lis, l)
   {
-    stay = p;
-    stay.depts.Add(this);
+    Stay = p;
+    Stay.Depts.Add(this);
     db.Add(this);
     listener.Fire(EventType.CREATED, this);
   }
   public DeptTask(ModelStorage db, ModelListener lis, RailLine l, Platform p, LineTask lt) : base(db, lis, l, lt)
   {
-    stay = p;
-    stay.depts.Add(this);
+    Stay = p;
+    Stay.Depts.Add(this);
     db.Add(this);
     listener.Fire(EventType.CREATED, this);
   }
 
-  public override RailNode Departure { get { return stay.on; } }
+  public override RailNode Departure { get { return Stay.On; } }
 
-  public override RailNode Destination { get { return stay.on; } }
+  public override RailNode Destination { get { return Stay.On; } }
 
-  public override bool IsNeighbor(RailEdge edge) { return stay.on == edge.from; }
+  public override bool IsNeighbor(RailEdge edge) { return Stay.On == edge.From; }
 
   public override float SignedAngle(RailEdge edge)
   {
@@ -34,14 +34,14 @@ public class DeptTask : LineTask
       throw new ArgumentException("ould not calculate angle to un-neighbored edge");
     }
 
-    var obj = prev;
+    var obj = Prev;
     while (obj != this)
     {
       if (obj.Length > 0)
       {
         return obj.SignedAngle(edge);
       }
-      obj = obj.prev;
+      obj = obj.Prev;
     }
     throw new ArgumentException("line has no edge task");
   }
@@ -57,21 +57,21 @@ public class DeptTask : LineTask
    */
   public override void InsertEdge(RailEdge edge)
   {
-    var nx = next;
+    var nx = Next;
     var inbound = CreateTask(edge);
 
     if (this != nx)
     {
       // 自身が発車タスクなので、復路の後の発車タスクを追加する
-      var dept = new DeptTask(storage, listener, parent, stay, inbound);
-      dept.next = nx;
-      nx.prev = dept;
+      var dept = new DeptTask(storage, listener, Parent, Stay, inbound);
+      dept.Next = nx;
+      nx.Prev = dept;
     }
     else
     {
       // 単体dept(セルフループ)の場合は例外で発車タスクをつけない
-      inbound.next = nx;
-      nx.prev = inbound;
+      inbound.Next = nx;
+      nx.Prev = inbound;
     }
   }
 

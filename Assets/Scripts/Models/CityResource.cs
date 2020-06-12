@@ -10,14 +10,14 @@ public class CityResource : MonoBehaviour
 
   public ModelFactory factory;
   public ModelStorage storage;
-  public int maxTry = 50;
-  public float width = 8.16f * 0.8f;
-  public float height = 6.24f * 0.8f;
+  public int MaxTry = 50;
+  public float Width = 8.16f * 0.8f;
+  public float Height = 6.24f * 0.8f;
   /**
    * 建物は最低この距離間をおいて建設する
    */
-  public float sparse = 1.50f;
-  public float padding = 1.00f;
+  public float Sparse = 1.50f;
+  public float Padding = 1.00f;
 
   private bool isInited;
 
@@ -49,7 +49,7 @@ public class CityResource : MonoBehaviour
 
   private Vector3 ChunkSize
   {
-    get { return new Vector3(width / 2 - padding, height / 2 - padding); }
+    get { return new Vector3(Width / 2 - Padding, Height / 2 - Padding); }
   }
 
   private Vector3 ChunkCenter(Chunk ch)
@@ -76,7 +76,7 @@ public class CityResource : MonoBehaviour
         dy = size.y / 2;
         break;
     }
-    return new Vector3(width / 2 + dx, height / 2 + dy);
+    return new Vector3(Width / 2 + dx, Height / 2 + dy);
   }
 
   private Vector3 Shuffle(Chunk ch)
@@ -92,7 +92,7 @@ public class CityResource : MonoBehaviour
   /**
     * チャンク内のランダムな位置で、他と一定距離離れた点を返す
     */
-  private Vector3 Sparse(Chunk ch)
+  private Vector3 ShuffleSparse(Chunk ch)
   {
     Vector3 pos;
     int i = 0;
@@ -100,25 +100,25 @@ public class CityResource : MonoBehaviour
     {
       pos = Shuffle(ch);
       i++;
-    } while (positions.Exists(p => Vector3.Distance(pos, p) < sparse) && i < maxTry);
+    } while (positions.Exists(p => Vector3.Distance(pos, p) < Sparse) && i < MaxTry);
     return pos;
   }
 
   private void Init()
   {
     // 初期会社
-    factory.NewCompany(1 + companies.Count, new Vector3(width - padding, height - padding));
+    factory.NewCompany(1 + companies.Count, new Vector3(Width - Padding, Height - Padding));
     // 初期住宅
-    factory.NewResidence(new Vector3(padding, padding));
+    factory.NewResidence(new Vector3(Padding, Padding));
     // 追加会社
     var ch = companies.Dequeue();
-    factory.NewCompany(1 + companies.Count, Sparse(ch));
+    factory.NewCompany(1 + companies.Count, ShuffleSparse(ch));
   }
 
   public void AddResidence()
   {
     var ch = residences.Dequeue();
-    factory.NewResidence(Sparse(ch));
+    factory.NewResidence(ShuffleSparse(ch));
   }
 
   public void AddResidence(Vector3 pos)
@@ -129,6 +129,6 @@ public class CityResource : MonoBehaviour
   public void AddCompany()
   {
     var ch = companies.Dequeue();
-    factory.NewCompany(1 + companies.Count, Sparse(ch));
+    factory.NewCompany(1 + companies.Count, ShuffleSparse(ch));
   }
 }

@@ -11,12 +11,12 @@ public class Station : MonoBehaviour
   private Station template;
   private bool isTemplate = true;
 
-  [System.NonSerialized] public List<Platform> platforms;
-  [System.NonSerialized] public Gate gate;
+  [System.NonSerialized] public List<Platform> Platforms;
+  [System.NonSerialized] public Gate Under;
 
   private void Awake()
   {
-    platforms = new List<Platform>();
+    Platforms = new List<Platform>();
     if (isTemplate) template = this;
   }
 
@@ -34,7 +34,7 @@ public class Station : MonoBehaviour
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.GetComponent<SpriteRenderer>().enabled = true;
-    obj.gate = factory.NewGate(this);
+    obj.Under = factory.NewGate(this);
     listener.Fire(EventType.CREATED, obj);
     return obj;
   }
@@ -47,12 +47,12 @@ public class Station : MonoBehaviour
 
   public void AddPlatform(Platform p)
   {
-    platforms.Add(p);
-    transform.position = platforms.Aggregate(new Vector3(), (prev, cur) =>
+    Platforms.Add(p);
+    transform.position = Platforms.Aggregate(new Vector3(), (prev, cur) =>
     {
-      prev += cur.transform.position / platforms.Count;
+      prev += cur.transform.position / Platforms.Count;
       return prev;
     });
-    gate.transform.position = transform.position;
+    Under.transform.position = transform.position;
   }
 }

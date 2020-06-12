@@ -23,7 +23,7 @@ public class StayTask : TrainTask
 
   protected override float Estimate()
   {
-    return Mathf.Max((1 - progress) * train.stay, 0);
+    return Mathf.Max((1 - progress) * train.Stay, 0);
   }
 
   protected override float OnFullConsume(float available)
@@ -35,7 +35,7 @@ public class StayTask : TrainTask
 
   protected override float OnPartialConsume(float available)
   {
-    progress += available / train.stay;
+    progress += available / train.Stay;
     return 0;
   }
 

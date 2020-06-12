@@ -24,8 +24,8 @@ public class Station : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Station>(EventType.CREATED, st => storage.Find<Station>().Add(st));
-      listener.Add<Station>(EventType.DELETED, st => storage.Find<Station>().Remove(st));
+      listener.Add<Station>(EventType.CREATED, st => storage.Add(st));
+      listener.Add<Station>(EventType.DELETED, st => storage.Remove(st));
     }
   }
 

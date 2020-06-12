@@ -22,7 +22,7 @@ namespace Tests
       yield return null;
       var inst = utils.rn.NewInstance(new Vector3(1f, 2f, 3f));
       yield return null;
-      Assert.AreEqual(utils.storage.Find<RailNode>().Count, 1);
+      Assert.AreEqual(utils.storage.List<RailNode>().Count, 1);
       Assert.AreEqual(inst.transform.position, new Vector3(1f, 2f, 3f));
     }
 
@@ -34,7 +34,7 @@ namespace Tests
       yield return null;
       var outE = inst.Extend(new Vector3(4f, 5f, 6f));
       yield return null;
-      Assert.AreEqual(utils.storage.Find<RailNode>().Count, 2);
+      Assert.AreEqual(utils.storage.List<RailNode>().Count, 2);
       Assert.AreEqual(inst.inEdge.Count, 1);
       Assert.AreEqual(inst.outEdge.Count, 1);
       Assert.AreEqual(inst.outEdge[0].from, inst);

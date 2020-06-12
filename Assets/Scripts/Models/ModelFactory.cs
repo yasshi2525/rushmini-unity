@@ -12,9 +12,6 @@ public class ModelFactory : MonoBehaviour
   public Station st;
   public Platform p;
   public Gate g;
-  public RailLine l;
-  public DeptTask dept;
-  public EdgeTask edge;
   public Train t;
   public Human h;
 
@@ -58,29 +55,9 @@ public class ModelFactory : MonoBehaviour
     return p.NewInstance(on, s);
   }
 
-  public RailLine NewRailLine()
+  public Train NewTrain(LineTask lt)
   {
-    return l.NewInstance();
-  }
-
-  public DeptTask NewDeptTask(RailLine parent, Platform stay)
-  {
-    return dept.NewInstance(parent, stay);
-  }
-
-  public DeptTask NewDeptTask(RailLine parent, Platform stay, ILineTask prev)
-  {
-    return dept.NewInstance(parent, stay, prev);
-  }
-
-  public EdgeTask NewEdgeTask(RailLine parent, RailEdge re, ILineTask prev)
-  {
-    return edge.NewInstance(parent, re, prev);
-  }
-
-  public Train NewTrain(Vector3 pos)
-  {
-    return t.NewInstance(pos);
+    return t.NewInstance(lt);
   }
 
   public Human NewHuman(Residence r, Company c)

@@ -32,8 +32,8 @@ public class RailEdge : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<RailEdge>(EventType.CREATED, re => storage.Find<RailEdge>().Add(re));
-      listener.Add<RailEdge>(EventType.DELETED, re => storage.Find<RailEdge>().Remove(re));
+      listener.Add<RailEdge>(EventType.CREATED, re => storage.Add(re));
+      listener.Add<RailEdge>(EventType.DELETED, re => storage.Remove(re));
     }
     else
     {

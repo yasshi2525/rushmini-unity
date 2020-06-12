@@ -18,8 +18,8 @@ public class Human : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Human>(EventType.CREATED, h => storage.Find<Human>().Add(h));
-      listener.Add<Human>(EventType.DELETED, h => storage.Find<Human>().Remove(h));
+      listener.Add<Human>(EventType.CREATED, h => storage.Add(h));
+      listener.Add<Human>(EventType.DELETED, h => storage.Remove(h));
     }
   }
 

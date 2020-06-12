@@ -28,8 +28,8 @@ public class RailPart : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<RailPart>(EventType.CREATED, rp => storage.Find<RailPart>().Add(rp));
-      listener.Add<RailPart>(EventType.DELETED, rp => storage.Find<RailPart>().Remove(rp));
+      listener.Add<RailPart>(EventType.CREATED, rp => storage.Add(rp));
+      listener.Add<RailPart>(EventType.DELETED, rp => storage.Remove(rp));
     }
     else
     {

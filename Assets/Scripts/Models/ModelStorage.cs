@@ -11,7 +11,7 @@ public class ModelStorage : MonoBehaviour
     storage = new Dictionary<Type, object>();
   }
 
-  public List<T> Find<T>()
+  private List<T> Find<T>()
   {
     var key = typeof(T);
     if (!storage.ContainsKey(key))
@@ -19,5 +19,20 @@ public class ModelStorage : MonoBehaviour
       storage.Add(key, new List<T>());
     }
     return storage[key] as List<T>;
+  }
+
+  public void Add<T>(T obj)
+  {
+    Find<T>().Add(obj);
+  }
+
+  public void Remove<T>(T obj)
+  {
+    Find<T>().Remove(obj);
+  }
+
+  public List<T> List<T>()
+  {
+    return Find<T>();
   }
 }

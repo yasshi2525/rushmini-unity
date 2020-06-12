@@ -27,8 +27,8 @@ public class RailNode : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<RailNode>(EventType.CREATED, rn => storage.Find<RailNode>().Add(rn));
-      listener.Add<RailNode>(EventType.DELETED, rn => storage.Find<RailNode>().Remove(rn));
+      listener.Add<RailNode>(EventType.CREATED, rn => storage.Add(rn));
+      listener.Add<RailNode>(EventType.DELETED, rn => storage.Remove(rn));
     }
   }
 

@@ -1,21 +1,101 @@
+using System;
 using System.Collections.Generic;
 
-public interface ILineTask
+public abstract class LineTask
 {
-  RailLine Parent { get; }
-  ILineTask Prev { get; set; }
-  ILineTask Next { get; set; }
-  List<Train> Trains { get; }
-  RailNode Departure();
-  RailNode Destination();
-  float SignedAngle(RailEdge edge);
-  float Length { get; }
+  protected ModelStorage storage;
+  protected ModelListener listener;
+  public RailLine parent;
+  public LineTask prev;
+  public LineTask next;
+  public List<Train> trains;
+
+  protected LineTask(ModelStorage db, ModelListener lis)
+  {
+    trains = new List<Train>();
+    listener = lis;
+    storage = db;
+  }
+
+  public LineTask(ModelStorage db, ModelListener lis, RailLine line) : this(db, lis)
+  {
+    parent = line;
+    prev = this;
+    next = this;
+  }
+
+  public LineTask(ModelStorage db, ModelListener lis, RailLine line, LineTask lt) : this(db, lis)
+  {
+    parent = line;
+    prev = lt;
+    prev.next = this;
+  }
+
+  public abstract RailNode Departure { get; }
+  public abstract RailNode Destination { get; }
+  /**
+   * 自タスクの終点から何ラジアン回転すれば引数の線路に一致するか返す。(左回り正)
+   */
+  public abstract float SignedAngle(RailEdge edge);
+  public abstract float Length { get; }
   /**
    * 指定された線路と隣接しているか判定します
    */
-  bool IsNeighbor(RailEdge edge);
-  void InsertEdge(RailEdge edge);
-  void InsertPlatform(Platform platform);
-  void Remove();
-  void Shrink(ILineTask to);
+  public abstract bool IsNeighbor(RailEdge edge);
+  /**
+   * 現在地点で路線を分断し、指定された往復路を路線タスクに挿入します
+   * Before (a) ---------------> (b) -> (c)
+   * After  (a) -> (X) -> (a) -> (b) -> (c)
+   * * edge : (a) -> (X)
+   */
+  public abstract void InsertEdge(RailEdge edge);
+  public abstract void InsertPlatform(Platform platform);
+
+  /**
+    * 現在のタスクに続く RailEdge に沿うタスクを作成します
+    * 循環参照によるプロトタイプ生成失敗を防ぐため、別モジュールにしている
+  */
+  protected LineTask CreateTask(RailEdge edge)
+  {
+    if (!IsNeighbor(edge))
+    {
+      throw new ArgumentException("try to insert non-neighbored edge");
+    }
+    var outBound = new EdgeTask(storage, listener, parent, edge, this);
+    EdgeTask inbound;
+    if (!edge.to.platform)
+    {
+      inbound = new EdgeTask(storage, listener, parent, edge.reverse, outBound);
+    }
+    else
+    {
+      inbound = new EdgeTask(storage, listener, parent, edge.reverse, new DeptTask(storage, listener, parent, edge.to.platform, outBound));
+    }
+    return inbound;
+  }
+
+  public void Remove()
+  {
+    storage.Remove(this);
+    listener.Fire(EventType.DELETED, this);
+  }
+
+  /**
+   * 現在のタスクの次を指定のタスクに設定します。
+   * 今ある中間タスクはすべて削除されます
+   */
+  public void Shrink(LineTask to)
+  {
+    var obj = next;
+    while (obj != to)
+    {
+      obj.trains.ForEach(t => t.Skip(to));
+      obj.Remove();
+      obj = obj.next;
+    }
+    next = to;
+    to.prev = this;
+    listener.Fire(EventType.MODIFIED, this);
+    listener.Fire(EventType.MODIFIED, to);
+  }
 }

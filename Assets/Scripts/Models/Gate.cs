@@ -19,8 +19,8 @@ public class Gate : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Gate>(EventType.CREATED, st => storage.Find<Gate>().Add(st));
-      listener.Add<Gate>(EventType.DELETED, st => storage.Find<Gate>().Remove(st));
+      listener.Add<Gate>(EventType.CREATED, st => storage.Add(st));
+      listener.Add<Gate>(EventType.DELETED, st => storage.Remove(st));
     }
   }
 

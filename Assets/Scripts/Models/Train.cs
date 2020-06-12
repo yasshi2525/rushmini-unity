@@ -5,6 +5,10 @@ public class Train : MonoBehaviour
   public ModelStorage storage;
   private Train template;
   private bool isTemplate = true;
+  public float stay = 2f;
+  public float mobility = 6f;
+  public float speed = 1.5f;
+  private TrainExecutor executor;
 
   private void Awake()
   {
@@ -15,29 +19,48 @@ public class Train : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Train>(EventType.CREATED, t => storage.Find<Train>().Add(t));
-      listener.Add<Train>(EventType.DELETED, t => storage.Find<Train>().Remove(t));
+      listener.Add<Train>(EventType.CREATED, t => storage.Add(t));
+      listener.Add<Train>(EventType.DELETED, t => storage.Remove(t));
     }
   }
 
-  public Train NewInstance(Vector3 pos)
+  private void Update()
+  {
+    if (executor != null)
+    {
+      var prev = executor.Position;
+      executor.Update();
+      transform.position = executor.Position;
+      if (Vector3.Distance(prev, executor.Position) > 0)
+      {
+        listener.Fire(EventType.MODIFIED, this);
+      }
+    }
+  }
+
+  public Train NewInstance(LineTask current)
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.GetComponent<SpriteRenderer>().enabled = true;
-    obj.transform.position = pos;
+    obj.executor = new TrainExecutor(obj, current);
+    obj.transform.position = obj.executor.Position;
     listener.Fire(EventType.CREATED, obj);
     return obj;
   }
 
   public void Remove()
   {
+    executor.current.Origin.trains.Remove(this);
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
   }
 
-  public void Skip(ILineTask to)
+  public void Skip(LineTask to)
   {
-
+    executor.Skip(to);
+    listener.Fire(EventType.MODIFIED, this);
   }
+
+  public LineTask Current { get { return executor.current.Origin; } }
 }

@@ -40,13 +40,13 @@ public class Residence : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Residence>(EventType.CREATED, r => storage.Find<Residence>().Add(r));
-      listener.Add<Residence>(EventType.DELETED, r => storage.Find<Residence>().Remove(r));
+      listener.Add<Residence>(EventType.CREATED, r => storage.Add(r));
+      listener.Add<Residence>(EventType.DELETED, r => storage.Remove(r));
     }
     destinations = new List<Company>();
     if (!isTemplate)
     {
-      storage.Find<Company>().ForEach(c => AddDestination(c));
+      storage.List<Company>().ForEach(c => AddDestination(c));
       listener.Add<Company>(EventType.CREATED, c => AddDestination(c));
       listener.Add<Company>(EventType.DELETED, c => DeleteDestination(c));
     }

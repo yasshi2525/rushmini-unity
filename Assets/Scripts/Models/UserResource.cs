@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,6 +10,8 @@ public class UserResource : MonoBehaviour
     INITED, STARTED, FIXED
   }
 
+  public ModelFactory factory;
+  public ModelStorage storage;
   public ModelListener listener;
 
   /**
@@ -19,7 +22,7 @@ public class UserResource : MonoBehaviour
   public float stationInterval = 2.5f;
   public int trainInterval = 2;
   public float terminalInterval = 0.95f;
-  public Action action;
+  [System.NonSerialized] public Action action;
   /**
    * end() 時に、このポイントまで伸ばす
    */
@@ -54,6 +57,11 @@ public class UserResource : MonoBehaviour
     stateListeners = new Dictionary<State, UnityEvent>();
   }
 
+  private void Start()
+  {
+    action = new Action(storage, listener, factory);
+  }
+
   public UnityEvent FindListener(State ev)
   {
     if (!stateListeners.ContainsKey(ev))
@@ -77,6 +85,7 @@ public class UserResource : MonoBehaviour
       action.BuildStation();
       action.CreateLine();
       action.StartLine();
+      action.DeployTrain(action.tailLine.top);
       SetState(State.STARTED);
     }
   }
@@ -96,6 +105,7 @@ public class UserResource : MonoBehaviour
       var dist = action.ExtendRail(pos);
       InterviseStation(dist);
       action.InsertEdge();
+      InterviseTrain();
     }
   }
 
@@ -122,6 +132,15 @@ public class UserResource : MonoBehaviour
     }
   }
 
+  private void InterviseTrain()
+  {
+    if (distTrain >= trainInterval)
+    {
+      action.tailLine.Filter(lt => lt.Departure == action.tailNode).ForEach(lt => action.DeployTrain(lt));
+      distTrain = 0;
+    }
+  }
+
   private void InsertTerminal()
   {
     if (tailPosition == null)
@@ -145,7 +164,8 @@ public class UserResource : MonoBehaviour
     {
       while (action.tailNode.platform != action.tailPlatform)
       {
-        action.actions.Pop().Rollback();
+        action.actions.Last.Value.Rollback();
+        action.actions.RemoveLast();
       }
     }
     else if (Vector3.Distance(tailPosition, action.tailNode.transform.position) > 0)
@@ -160,6 +180,29 @@ public class UserResource : MonoBehaviour
     {
       action.BuildStation();
       action.InsertPlatform();
+    }
+    // 終点にはかならず電車を配置する
+    if (action.tailPlatform.depts.Count == 0)
+    {
+      Debug.LogWarning("no dept");
+      return;
+    }
+    var dept = action.tailPlatform.depts[0];
+    if (dept.trains.Count == 0)
+    {
+      action.DeployTrain(dept);
+    }
+    else if (!(dept.next is DeptTask))
+    {
+      // 終駅がある状態で end に入ると、すでに2台おかれている(deptとdept.nextに)。1台を撤去する
+      // 1点nodeのときは撤去しない
+      var lastTrainAction = this.action.actions.Last(a => a is DeployTrainAction && dept.next.trains.Contains((a as DeployTrainAction).train));
+      // branch時は電車挿入場所のため、lastTrainActionがみつからない
+      if (lastTrainAction != null)
+      {
+        lastTrainAction.Rollback();
+        this.action.actions.Remove(lastTrainAction);
+      }
     }
   }
 }

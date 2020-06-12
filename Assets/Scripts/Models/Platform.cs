@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Platform : MonoBehaviour
 {
@@ -10,9 +11,11 @@ public class Platform : MonoBehaviour
 
   [System.NonSerialized] public RailNode on;
   [System.NonSerialized] public Station station;
+  [System.NonSerialized] public List<DeptTask> depts;
 
   private void Awake()
   {
+    depts = new List<DeptTask>();
     if (isTemplate) template = this;
   }
 
@@ -20,8 +23,8 @@ public class Platform : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Platform>(EventType.CREATED, st => storage.Find<Platform>().Add(st));
-      listener.Add<Platform>(EventType.DELETED, st => storage.Find<Platform>().Remove(st));
+      listener.Add<Platform>(EventType.CREATED, st => storage.Add(st));
+      listener.Add<Platform>(EventType.DELETED, st => storage.Remove(st));
     }
   }
 

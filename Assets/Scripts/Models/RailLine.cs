@@ -4,87 +4,70 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-public class RailLine : MonoBehaviour
+public class RailLine
 {
-  public ModelListener listener;
-  public ModelStorage storage;
-  public ModelFactory factory;
-  private RailLine template;
-  private bool isTemplate = true;
-  [System.NonSerialized] public DeptTask top;
+  protected ModelListener listener;
+  protected ModelStorage storage;
+  public DeptTask top;
 
-  private void Awake()
+  public RailLine(ModelStorage db, ModelListener lis)
   {
-    if (isTemplate) template = this;
-  }
-
-  private void Start()
-  {
-    if (isTemplate)
-    {
-      listener.Add<RailLine>(EventType.CREATED, l => storage.Find<RailLine>().Add(l));
-      listener.Add<RailLine>(EventType.DELETED, l => storage.Find<RailLine>().Remove(l));
-    }
-  }
-
-  public RailLine NewInstance()
-  {
-    var obj = Instantiate(template);
-    obj.isTemplate = false;
-    listener.Fire(EventType.CREATED, obj);
-    return obj;
+    storage = db;
+    listener = lis;
+    storage.Add(this);
+    listener.Fire(EventType.CREATED, this);
   }
 
   public void Remove()
   {
+    storage.Remove(this);
     listener.Fire<RailLine>(EventType.DELETED, this);
-    Destroy(gameObject);
   }
 
   public void StartLine(Platform p)
   {
-    if (top)
+    if (top != null)
     {
       throw new ArgumentException("try to start already constructed line");
     }
-    top = factory.NewDeptTask(this, p);
+    top = new DeptTask(storage, listener, this, p);
   }
 
-  public delegate bool Cond(ILineTask lt);
+  public delegate bool Cond(LineTask lt);
 
   /**
    * 指定された条件を満たすタスクを絞り込みます
    */
-  public List<ILineTask> Filter(Cond cond)
+  public List<LineTask> Filter(Cond cond)
   {
-    if (top == null) return new List<ILineTask>();
-    var result = new List<ILineTask>();
-    ILineTask current = top;
+    if (top == null) return new List<LineTask>();
+    var result = new List<LineTask>();
+    LineTask current = top;
     do
     {
       if (cond(current))
       {
         result.Add(current);
       }
-      current = current.Next;
-    } while (current != top as ILineTask);
+      current = current.next;
+    } while (current != top);
     return result;
   }
 
   /**
    * 指定された線路の始点を終点とする隣接タスクを返します
    */
-  private List<ILineTask> FilterNeighbors(RailEdge re)
+  private List<LineTask> FilterNeighbors(RailEdge re)
   {
     // 隣接していないタスクはスキップ
     // 駅に到着するタスクはスキップ。発車タスクの後に挿入する
-    return Filter((lt) => lt.IsNeighbor(re) && lt.Next is EdgeTask);
+    return Filter((lt) => lt.IsNeighbor(re) && lt.next is EdgeTask);
   }
 
   /**
     * 候補が複数ある場合、距離0の移動タスクは角度の計算ができないのでスキップ
     */
-  private List<ILineTask> FilterOutUnangled(List<ILineTask> neighbors)
+  private List<LineTask> FilterOutUnangled(List<LineTask> neighbors)
   {
     return (neighbors.Count == 1) ? neighbors : neighbors.FindAll(lt => lt is DeptTask || lt.Length > 0);
   }
@@ -92,7 +75,7 @@ public class RailLine : MonoBehaviour
   /**
     * 次のタスクへの回転角が最も大きいものを返す
     */
-  private ILineTask FindLargestAngle(List<ILineTask> list, RailEdge edge)
+  private LineTask FindLargestAngle(List<LineTask> list, RailEdge edge)
   {
     list.Sort((lt1, lt2) =>
     {
@@ -107,13 +90,13 @@ public class RailLine : MonoBehaviour
     * 指定された線路と隣接するタスクの内、右向き正とした角度がもっとも大きいタスクを返します
     * これは線路を分岐させたとき、どの分岐先を選べばよいか判定するためのものです
     */
-  private ILineTask FindFarLeft(RailEdge re)
+  private LineTask FindFarLeft(RailEdge re)
   {
     if (top == null) return null;
     // セルフループの場合自身を返す
-    if (top.next == top as ILineTask)
+    if (top.next == top)
     {
-      if (!(top as ILineTask).IsNeighbor(re))
+      if (!top.IsNeighbor(re))
       {
         throw new ArgumentException("top is not neighbored edge");
       }
@@ -131,10 +114,10 @@ public class RailLine : MonoBehaviour
     return FindLargestAngle(candidates, re);
   }
 
-  public (ILineTask, ILineTask) InsertEdge(RailEdge re)
+  public (LineTask, LineTask) InsertEdge(RailEdge re)
   {
     var pivot = FindFarLeft(re);
-    var prevNext = pivot.Next;
+    var prevNext = pivot.next;
     pivot.InsertEdge(re);
     return (pivot, prevNext);
   }
@@ -144,12 +127,12 @@ public class RailLine : MonoBehaviour
    */
   public void InsertPlatform(Platform platform)
   {
-    Filter(lt => lt.Destination() == platform.on).ForEach(lt => lt.InsertPlatform(platform));
+    Filter(lt => lt.Destination == platform.on).ForEach(lt => lt.InsertPlatform(platform));
   }
 
   public void RemovePlatform(Platform platform)
   {
-    Filter(lt => lt is DeptTask && (lt as DeptTask).stay == platform).ForEach(dept => dept.Prev.Shrink(dept.Next));
+    Filter(lt => lt is DeptTask && (lt as DeptTask).stay == platform).ForEach(dept => dept.prev.Shrink(dept.next));
   }
 
   public float Length

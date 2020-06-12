@@ -101,27 +101,28 @@ class BuildStationAction : Transactional
 
 class CreateLineAction : Transactional
 {
-  protected ModelFactory factory;
+  protected ModelStorage storage;
+  protected ModelListener listener;
   public delegate void RollbackFn(RailLine l);
   protected RollbackFn rollback;
   protected RailLine prevLine;
   protected RailLine l;
 
-  public CreateLineAction(ModelFactory f)
+  public CreateLineAction(ModelStorage db, ModelListener lis)
   {
-    factory = f;
+    storage = db;
+    listener = lis;
   }
 
-  public CreateLineAction(ModelFactory f, RailLine line, RollbackFn fn)
+  public CreateLineAction(ModelStorage db, ModelListener lis, RailLine line, RollbackFn fn) : this(db, lis)
   {
-    factory = f;
     prevLine = line;
     rollback = fn;
   }
 
   public RailLine Act()
   {
-    l = factory.NewRailLine();
+    l = new RailLine(storage, listener);
     return l;
   }
 
@@ -151,7 +152,7 @@ class StartLineAction : Transactional
 
   void Transactional.Rollback()
   {
-    (line.top as ILineTask).Remove();
+    line.top.Remove();
     line.top = null;
   }
 }
@@ -160,8 +161,8 @@ class InsertEdgeAction : Transactional
 {
   protected RailLine line;
 
-  protected ILineTask pivot;
-  protected ILineTask prevNext;
+  protected LineTask pivot;
+  protected LineTask prevNext;
 
   public InsertEdgeAction(RailLine l)
   {
@@ -201,26 +202,53 @@ class InsertPlatformAction : Transactional
   }
 }
 
-public class Action : MonoBehaviour
+public class DeployTrainAction : Transactional
 {
-  public ModelFactory factory;
+  protected ModelFactory factory;
+  public Train train;
 
-  [System.NonSerialized] public Stack<Transactional> actions;
-  [System.NonSerialized] public RailNode tailNode;
-  [System.NonSerialized] public RailEdge tailEdge;
-  [System.NonSerialized] public Platform tailPlatform;
-  [System.NonSerialized] public RailLine tailLine;
-
-  public Action()
+  public DeployTrainAction(ModelFactory f)
   {
-    actions = new Stack<Transactional>();
+    factory = f;
+  }
+
+  public Train Act(LineTask lt)
+  {
+    train = factory.NewTrain(lt);
+    return train;
+  }
+
+  void Transactional.Rollback()
+  {
+    train.Remove();
+  }
+}
+
+public class Action
+{
+  protected ModelFactory factory;
+  protected ModelStorage storage;
+  protected ModelListener listener;
+
+  public LinkedList<Transactional> actions;
+  public RailNode tailNode;
+  public RailEdge tailEdge;
+  public Platform tailPlatform;
+  public RailLine tailLine;
+
+  public Action(ModelStorage db, ModelListener lis, ModelFactory f)
+  {
+    storage = db;
+    listener = lis;
+    factory = f;
+    actions = new LinkedList<Transactional>();
   }
 
   public void StartRail(Vector3 pos)
   {
     var action = new StartRailAction(factory, tailNode, (prev) => { tailNode = prev; });
     tailNode = action.Act(pos);
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public float ExtendRail(Vector3 pos)
@@ -228,7 +256,7 @@ public class Action : MonoBehaviour
     var action = new ExtendRailAction(tailNode, (prev) => { tailNode = prev; });
     tailEdge = action.Act(pos);
     tailNode = tailEdge.to;
-    actions.Push(action);
+    actions.AddLast(action);
     return Vector3.Magnitude(tailEdge.arrow);
   }
 
@@ -240,7 +268,7 @@ public class Action : MonoBehaviour
       tailPlatform = prevPlatform;
     });
     tailPlatform = action.Act();
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void BuildStation(RailNode rn)
@@ -252,42 +280,49 @@ public class Action : MonoBehaviour
     });
     tailPlatform = action.Act(rn);
     tailNode = rn;
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void CreateLine()
   {
-    var action = new CreateLineAction(factory);
+    var action = new CreateLineAction(storage, listener);
     tailLine = action.Act();
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void StartLine()
   {
     var action = new StartLineAction(tailLine);
     action.Act(tailPlatform);
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void InsertEdge()
   {
     var action = new InsertEdgeAction(tailLine);
     action.Act(tailEdge);
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void InsertPlatform()
   {
     var action = new InsertPlatformAction(tailLine);
     action.Act(tailPlatform);
-    actions.Push(action);
+    actions.AddLast(action);
   }
 
   public void InsertPlatform(Platform p)
   {
     var action = new InsertPlatformAction(tailLine);
     action.Act(p);
-    actions.Push(action);
+    actions.AddLast(action);
+  }
+
+  public void DeployTrain(LineTask lt)
+  {
+    var action = new DeployTrainAction(factory);
+    action.Act(lt);
+    actions.AddLast(action);
   }
 
   public void Commit()
@@ -299,7 +334,8 @@ public class Action : MonoBehaviour
   {
     while (actions.Count > 0)
     {
-      actions.Pop().Rollback();
+      actions.Last.Value.Rollback();
+      actions.RemoveLast();
     }
   }
 }

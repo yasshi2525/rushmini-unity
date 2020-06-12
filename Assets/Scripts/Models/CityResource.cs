@@ -3,12 +3,38 @@ using UnityEngine;
 
 public class CityResource : MonoBehaviour
 {
+  private enum Chunk
+  {
+    NE, NW, SE, SW
+  }
+
   public ModelFactory factory;
+  public ModelStorage storage;
+  public int maxTry = 50;
+  public float width = 8.16f * 0.8f;
+  public float height = 6.24f * 0.8f;
+  /**
+   * 建物は最低この距離間をおいて建設する
+   */
+  public float sparse = 1.50f;
+  public float padding = 1.00f;
+
   private bool isInited;
 
-  // Start is called before the first frame update
-  private void Start()
+  private Queue<Chunk> residences;
+  private Queue<Chunk> companies;
+  private List<Vector3> positions;
+
+  private void Awake()
   {
+    residences = new Queue<Chunk>();
+    residences.Enqueue(Chunk.NW);
+    residences.Enqueue(Chunk.SW);
+    residences.Enqueue(Chunk.NE);
+    companies = new Queue<Chunk>();
+    companies.Enqueue(Chunk.SE);
+    companies.Enqueue(Chunk.SE);
+    positions = new List<Vector3>();
   }
 
   // Update is called once per frame
@@ -16,12 +42,93 @@ public class CityResource : MonoBehaviour
   {
     if (!isInited)
     {
-      for (int i = 0; i < 2; i++)
-      {
-        var c = factory.NewCompany(i + 1, new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f));
-      }
-      var r = factory.NewResidence(new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f));
+      Init();
     }
     isInited = true;
+  }
+
+  private Vector3 ChunkSize
+  {
+    get { return new Vector3(width / 2 - padding, height / 2 - padding); }
+  }
+
+  private Vector3 ChunkCenter(Chunk ch)
+  {
+    var size = ChunkSize;
+    float dx = 0;
+    float dy = 0;
+    switch (ch)
+    {
+      case Chunk.NE:
+        dx = size.x / 2;
+        dy = -size.y / 2;
+        break;
+      case Chunk.SE:
+        dx = size.x / 2;
+        dy = size.y / 2;
+        break;
+      case Chunk.NW:
+        dx = -size.x / 2;
+        dy = -size.y / 2;
+        break;
+      case Chunk.SW:
+        dx = -size.x / 2;
+        dy = size.y / 2;
+        break;
+    }
+    return new Vector3(width / 2 + dx, height / 2 + dy);
+  }
+
+  private Vector3 Shuffle(Chunk ch)
+  {
+    var center = ChunkCenter(ch);
+    var size = ChunkSize;
+    return new Vector3(
+      center.x + Random.Range(-size.x / 2, size.x / 2),
+      center.y + Random.Range(-size.y, size.y)
+    );
+  }
+
+  /**
+    * チャンク内のランダムな位置で、他と一定距離離れた点を返す
+    */
+  private Vector3 Sparse(Chunk ch)
+  {
+    Vector3 pos;
+    int i = 0;
+    do
+    {
+      pos = Shuffle(ch);
+      i++;
+    } while (positions.Exists(p => Vector3.Distance(pos, p) < sparse) && i < maxTry);
+    return pos;
+  }
+
+  private void Init()
+  {
+    // 初期会社
+    factory.NewCompany(1 + companies.Count, new Vector3(width - padding, height - padding));
+    // 初期住宅
+    factory.NewResidence(new Vector3(padding, padding));
+    // 追加会社
+    var ch = companies.Dequeue();
+    factory.NewCompany(1 + companies.Count, Sparse(ch));
+  }
+
+  public void AddResidence()
+  {
+    var ch = residences.Dequeue();
+    factory.NewResidence(Sparse(ch));
+  }
+
+  public void AddResidence(Vector3 pos)
+  {
+    factory.NewResidence(pos);
+  }
+
+  public void AddCompany()
+  {
+    var ch = companies.Dequeue();
+    factory.NewCompany(1 + companies.Count, Sparse(ch));
   }
 }

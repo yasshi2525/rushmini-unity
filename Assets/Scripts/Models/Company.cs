@@ -22,8 +22,8 @@ public class Company : MonoBehaviour
   {
     if (isTemplate)
     {
-      listener.Add<Company>(EventType.CREATED, c => storage.Find<Company>().Add(c));
-      listener.Add<Company>(EventType.DELETED, c => storage.Find<Company>().Remove(c));
+      listener.Add<Company>(EventType.CREATED, c => storage.Add(c));
+      listener.Add<Company>(EventType.DELETED, c => storage.Remove(c));
     }
   }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,6 +59,10 @@ public class RailNode : MonoBehaviour
 
   public Platform BuildStation()
   {
+    if (platform)
+    {
+      throw new ArgumentException("try to build station on already deployed");
+    }
     return factory.NewPlatform(this, factory.NewStation());
   }
 
@@ -66,10 +71,6 @@ public class RailNode : MonoBehaviour
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
   }
-
-  public void Handle() { }
-
-  public void GiveUp() { }
 
   /**
   * from から to へ ratio([0, 1]) 進んだ点を返す

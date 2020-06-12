@@ -75,6 +75,8 @@ public class UserResource : MonoBehaviour
     {
       action.StartRail(pos);
       action.BuildStation();
+      action.CreateLine();
+      action.StartLine();
       SetState(State.STARTED);
     }
   }
@@ -93,6 +95,7 @@ public class UserResource : MonoBehaviour
       }
       var dist = action.ExtendRail(pos);
       InterviseStation(dist);
+      action.InsertEdge();
     }
   }
 
@@ -149,12 +152,14 @@ public class UserResource : MonoBehaviour
     {
       // 建設抑止していた場合、最後にクリックした地点まで延伸する
       action.ExtendRail(tailPosition);
+      action.InsertEdge();
     }
 
     // 終点には駅があるようする
     if (action.tailNode.platform == null)
     {
       action.BuildStation();
+      action.InsertPlatform();
     }
   }
 }

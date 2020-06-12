@@ -9,7 +9,6 @@ public interface Transactional
 class StartRailAction : Transactional
 {
   protected ModelFactory factory;
-
   protected RailNode prevTail;
   public delegate void RollbackFn(RailNode rn);
   protected RollbackFn rollback;
@@ -100,6 +99,108 @@ class BuildStationAction : Transactional
   }
 }
 
+class CreateLineAction : Transactional
+{
+  protected ModelFactory factory;
+  public delegate void RollbackFn(RailLine l);
+  protected RollbackFn rollback;
+  protected RailLine prevLine;
+  protected RailLine l;
+
+  public CreateLineAction(ModelFactory f)
+  {
+    factory = f;
+  }
+
+  public CreateLineAction(ModelFactory f, RailLine line, RollbackFn fn)
+  {
+    factory = f;
+    prevLine = line;
+    rollback = fn;
+  }
+
+  public RailLine Act()
+  {
+    l = factory.NewRailLine();
+    return l;
+  }
+
+  void Transactional.Rollback()
+  {
+    if (rollback != null)
+    {
+      rollback(prevLine);
+    }
+    l.Remove();
+  }
+}
+
+class StartLineAction : Transactional
+{
+  protected RailLine line;
+
+  public StartLineAction(RailLine l)
+  {
+    line = l;
+  }
+
+  public void Act(Platform p)
+  {
+    line.StartLine(p);
+  }
+
+  void Transactional.Rollback()
+  {
+    (line.top as ILineTask).Remove();
+    line.top = null;
+  }
+}
+
+class InsertEdgeAction : Transactional
+{
+  protected RailLine line;
+
+  protected ILineTask pivot;
+  protected ILineTask prevNext;
+
+  public InsertEdgeAction(RailLine l)
+  {
+    line = l;
+  }
+
+  public void Act(RailEdge re)
+  {
+    (pivot, prevNext) = line.InsertEdge(re);
+  }
+
+  void Transactional.Rollback()
+  {
+    pivot.Shrink(prevNext);
+  }
+}
+
+class InsertPlatformAction : Transactional
+{
+  protected RailLine line;
+  protected Platform platform;
+
+  public InsertPlatformAction(RailLine l)
+  {
+    line = l;
+  }
+
+  public void Act(Platform p)
+  {
+    platform = p;
+    line.InsertPlatform(p);
+  }
+
+  void Transactional.Rollback()
+  {
+    line.RemovePlatform(platform);
+  }
+}
+
 public class Action : MonoBehaviour
 {
   public ModelFactory factory;
@@ -108,6 +209,7 @@ public class Action : MonoBehaviour
   [System.NonSerialized] public RailNode tailNode;
   [System.NonSerialized] public RailEdge tailEdge;
   [System.NonSerialized] public Platform tailPlatform;
+  [System.NonSerialized] public RailLine tailLine;
 
   public Action()
   {
@@ -151,5 +253,53 @@ public class Action : MonoBehaviour
     tailPlatform = action.Act(rn);
     tailNode = rn;
     actions.Push(action);
+  }
+
+  public void CreateLine()
+  {
+    var action = new CreateLineAction(factory);
+    tailLine = action.Act();
+    actions.Push(action);
+  }
+
+  public void StartLine()
+  {
+    var action = new StartLineAction(tailLine);
+    action.Act(tailPlatform);
+    actions.Push(action);
+  }
+
+  public void InsertEdge()
+  {
+    var action = new InsertEdgeAction(tailLine);
+    action.Act(tailEdge);
+    actions.Push(action);
+  }
+
+  public void InsertPlatform()
+  {
+    var action = new InsertPlatformAction(tailLine);
+    action.Act(tailPlatform);
+    actions.Push(action);
+  }
+
+  public void InsertPlatform(Platform p)
+  {
+    var action = new InsertPlatformAction(tailLine);
+    action.Act(p);
+    actions.Push(action);
+  }
+
+  public void Commit()
+  {
+    actions.Clear();
+  }
+
+  public void Rollback()
+  {
+    while (actions.Count > 0)
+    {
+      actions.Pop().Rollback();
+    }
   }
 }

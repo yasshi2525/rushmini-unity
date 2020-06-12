@@ -35,4 +35,9 @@ public class Train : MonoBehaviour
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
   }
+
+  public void Skip(ILineTask to)
+  {
+
+  }
 }

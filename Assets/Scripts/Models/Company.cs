@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Company : MonoBehaviour
 {
@@ -33,6 +34,10 @@ public class Company : MonoBehaviour
 
   public Company NewInstance(int attractiveness, Vector3 pos)
   {
+    if (attractiveness <= 0)
+    {
+      throw new ArgumentException("attractiveness must be >0");
+    }
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.attractiveness = attractiveness;

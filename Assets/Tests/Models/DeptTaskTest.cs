@@ -103,7 +103,7 @@ namespace Tests
       var l = new RailLine(utils.storage, utils.listener);
       l.StartLine(p);
       var dept = l.Top;
-      // from -> [dept] -> from -> [outbound] -> to -> [inbound] -> from
+      // rn1 -> [dept] -> rn1 -> [mv12] -> rn2 -> [mv21] -> rn1
       dept.InsertEdge(e12);
       var mv12 = dept.Next;
       Assert.IsInstanceOf(typeof(EdgeTask), mv12);
@@ -112,6 +112,80 @@ namespace Tests
       Assert.AreSame(rn1, mv12.Departure);
       Assert.AreSame(rn2, mv12.Destination);
       Assert.AreEqual(e12.Arrow.magnitude, mv12.Length, utils.DELTA);
+      Assert.AreSame(mv12, dept.Next);
+      Assert.AreSame(dept, mv12.Prev);
+      var mv21 = mv12.Next;
+      Assert.AreSame(l, mv21.Parent);
+      Assert.IsInstanceOf(typeof(EdgeTask), mv21);
+      Assert.AreSame(e21, (mv21 as EdgeTask).Edge);
+      Assert.AreSame(rn2, mv21.Departure);
+      Assert.AreSame(rn1, mv21.Destination);
+      Assert.AreSame(mv21, mv12.Next);
+      Assert.AreSame(mv12, mv21.Prev);
+      Assert.AreSame(dept, mv21.Next);
+      Assert.AreSame(mv21, dept.Prev);
+    }
+
+    [UnityTest]
+    public IEnumerator InsertEdgeToStation()
+    {
+      yield return null;
+      var rn1 = utils.factory.NewRailNode(new Vector3(0f, 0f));
+      yield return null;
+      var p1 = rn1.BuildStation();
+      yield return null;
+      var e12 = rn1.Extend(new Vector3(1f, 1f));
+      yield return null;
+      var e21 = e12.Reverse;
+      var rn2 = e12.To;
+      var p2 = rn2.BuildStation();
+      yield return null;
+      var l = new RailLine(utils.storage, utils.listener);
+      l.StartLine(p1);
+      var dept1 = l.Top;
+      // rn1 -> [dept1] -> rn1 -> [mv12] -> rn2 -> [dept2] -> [mv21] -> rn1
+      dept1.InsertEdge(e12);
+      var mv12 = dept1.Next;
+      Assert.IsInstanceOf(typeof(EdgeTask), mv12);
+      Assert.AreSame(l, mv12.Parent);
+      Assert.AreSame(e12, (mv12 as EdgeTask).Edge);
+      Assert.AreSame(rn1, mv12.Departure);
+      Assert.AreSame(rn2, mv12.Destination);
+      Assert.AreEqual(e12.Arrow.magnitude, mv12.Length, utils.DELTA);
+      Assert.AreSame(mv12, dept1.Next);
+      Assert.AreSame(dept1, mv12.Prev);
+      var dept2 = mv12.Next;
+      Assert.IsInstanceOf(typeof(DeptTask), dept2);
+      Assert.AreSame(p2, (dept2 as DeptTask).Stay);
+      Assert.AreSame(rn2, dept2.Departure);
+      Assert.AreSame(rn2, dept2.Destination);
+      Assert.AreSame(dept2, mv12.Next);
+      Assert.AreSame(mv12, dept2.Prev);
+      var mv21 = dept2.Next;
+      Assert.AreSame(l, mv21.Parent);
+      Assert.AreSame(e21, (mv21 as EdgeTask).Edge);
+      Assert.AreSame(rn2, mv21.Departure);
+      Assert.AreSame(rn1, mv21.Destination);
+      Assert.AreSame(mv21, dept2.Next);
+      Assert.AreSame(dept2, mv21.Prev);
+      Assert.AreSame(dept1, mv21.Next);
+      Assert.AreSame(mv21, dept1.Prev);
+    }
+
+    [UnityTest]
+    public IEnumerator InsertPlatformErrorDuplicated()
+    {
+      yield return null;
+      var rn1 = utils.factory.NewRailNode(new Vector3(0f, 0f));
+      var rnX = utils.factory.NewRailNode(new Vector3(0f, 0f));
+      yield return null;
+      var p1 = rn1.BuildStation();
+      var pX = rnX.BuildStation();
+      yield return null;
+      var l = new RailLine(utils.storage, utils.listener);
+      l.StartLine(p1);
+      var dept = l.Top;
+      Assert.Throws<ArgumentException>(() => dept.InsertPlatform(pX));
     }
   }
 }

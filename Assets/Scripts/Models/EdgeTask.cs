@@ -41,5 +41,6 @@ public class EdgeTask : LineTask
     var obj = Next;
     var dept = new DeptTask(storage, listener, Parent, platform, this);
     dept.Next = obj;
+    obj.Prev = dept;
   }
 }

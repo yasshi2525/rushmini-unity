@@ -61,22 +61,22 @@ public class CityResource : MonoBehaviour
     {
       case Chunk.NE:
         dx = size.x / 2;
-        dy = -size.y / 2;
+        dy = size.y / 2;
         break;
       case Chunk.SE:
         dx = size.x / 2;
-        dy = size.y / 2;
+        dy = -size.y / 2;
         break;
       case Chunk.NW:
         dx = -size.x / 2;
-        dy = -size.y / 2;
+        dy = size.y / 2;
         break;
       case Chunk.SW:
         dx = -size.x / 2;
-        dy = size.y / 2;
+        dy = -size.y / 2;
         break;
     }
-    return new Vector3(Width / 2 + dx, Height / 2 + dy);
+    return new Vector3(dx, dy);
   }
 
   private Vector3 Shuffle(Chunk ch)
@@ -85,7 +85,7 @@ public class CityResource : MonoBehaviour
     var size = ChunkSize;
     return new Vector3(
       center.x + Random.Range(-size.x / 2, size.x / 2),
-      center.y + Random.Range(-size.y, size.y)
+      center.y + Random.Range(-size.y / 2, size.y / 2)
     );
   }
 
@@ -107,9 +107,9 @@ public class CityResource : MonoBehaviour
   private void Init()
   {
     // 初期会社
-    factory.NewCompany(1 + companies.Count, new Vector3(Width - Padding, Height - Padding));
+    factory.NewCompany(1 + companies.Count, new Vector3(Width / 2 - Padding, -Height / 2 + Padding));
     // 初期住宅
-    factory.NewResidence(new Vector3(Padding, Padding));
+    factory.NewResidence(new Vector3(-Width / 2 + Padding, Height / 2 - Padding));
     // 追加会社
     var ch = companies.Dequeue();
     factory.NewCompany(1 + companies.Count, ShuffleSparse(ch));

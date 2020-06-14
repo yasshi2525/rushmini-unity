@@ -1,5 +1,7 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-public class Train : MonoBehaviour
+public class Train : MonoBehaviour, IRoutable
 {
   public ModelListener listener;
   public ModelStorage storage;
@@ -8,7 +10,11 @@ public class Train : MonoBehaviour
   public float Stay = 2f;
   public float Mobility = 6f;
   public float Speed = 1.5f;
+  public int Capacity = 30;
   private TrainExecutor executor;
+
+  [System.NonSerialized] public List<Human> Passengers;
+  private Router router;
 
   private void Awake()
   {
@@ -42,8 +48,10 @@ public class Train : MonoBehaviour
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
+    obj.Passengers = new List<Human>();
+    obj.router = new RouterImpl(obj);
     obj.GetComponent<SpriteRenderer>().enabled = true;
-    obj.executor = new TrainExecutor(obj, current);
+    obj.executor = new TrainExecutor(listener, obj, current);
     obj.transform.position = obj.executor.Position;
     listener.Fire(EventType.CREATED, obj);
     return obj;
@@ -62,5 +70,27 @@ public class Train : MonoBehaviour
     listener.Fire(EventType.MODIFIED, this);
   }
 
+  public Router Route { get { return router; } }
+
   public LineTask Current { get { return executor.Current.Origin; } }
+
+  private class RouterImpl : Router
+  {
+    private Train parent;
+
+    public RouterImpl(Train t)
+    {
+      parent = t;
+    }
+
+    public override void Handle(Human subject)
+    {
+      throw new InvalidOperationException();
+    }
+
+    public override void Discard(Human subject)
+    {
+      parent.executor.Discard(subject);
+    }
+  }
 }

@@ -187,7 +187,7 @@ public class UserResource : MonoBehaviour
       Debug.LogWarning("no dept");
       return;
     }
-    var dept = Proxy.TailPlatform.Depts[0];
+    var dept = Proxy.TailPlatform.Depts.First.Value;
     if (dept.Trains.Count == 0)
     {
       Proxy.DeployTrain(dept);
@@ -196,7 +196,7 @@ public class UserResource : MonoBehaviour
     {
       // 終駅がある状態で end に入ると、すでに2台おかれている(deptとdept.nextに)。1台を撤去する
       // 1点nodeのときは撤去しない
-      var lastTrainAction = this.Proxy.Actions.Last(a => a is DeployTrainAction && dept.Next.Trains.Contains((a as DeployTrainAction).train));
+      var lastTrainAction = this.Proxy.Actions.LastOrDefault(a => a is DeployTrainAction && dept.Next.Trains.Contains((a as DeployTrainAction).train));
       // branch時は電車挿入場所のため、lastTrainActionがみつからない
       if (lastTrainAction != null)
       {

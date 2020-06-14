@@ -67,4 +67,6 @@ public abstract class TrainTask
     if (IsCompleted()) onComplete();
     return remain;
   }
+
+  public abstract void Discard(Human subject);
 }

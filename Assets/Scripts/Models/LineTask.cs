@@ -74,7 +74,7 @@ public abstract class LineTask
     return inbound;
   }
 
-  public void Remove()
+  public virtual void Remove()
   {
     storage.Remove(this);
     listener.Fire(EventType.DELETED, this);

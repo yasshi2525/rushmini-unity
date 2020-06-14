@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Residence : MonoBehaviour
+public class Residence : MonoBehaviour, IRoutable
 {
   public ModelStorage storage;
   public ModelListener listener;
@@ -14,22 +15,11 @@ public class Residence : MonoBehaviour
    */
   [System.NonSerialized] public List<Company> Destinations;
 
-  public float IntervalSec = 0.5f;
+  public float Interval = 0.5f;
 
   private float remainTime;
+  private Router router;
 
-  private void AddDestination(Company c)
-  {
-    for (int i = 0; i < c.Attractiveness; i++)
-    {
-      Destinations.Add(c);
-    }
-  }
-
-  private void DeleteDestination(Company c)
-  {
-    Destinations.RemoveAll(oth => oth == c);
-  }
   private void Awake()
   {
     if (isTemplate) template = this;
@@ -64,7 +54,7 @@ public class Residence : MonoBehaviour
         factory.NewHuman(this, c);
         Destinations.Add(c);
       }
-      remainTime += IntervalSec;
+      remainTime += Interval;
     }
   }
 
@@ -72,6 +62,7 @@ public class Residence : MonoBehaviour
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
+    obj.router = new RouterImpl();
     obj.GetComponent<SpriteRenderer>().enabled = true;
     obj.transform.position = pos;
     listener.Fire(EventType.CREATED, obj);
@@ -82,5 +73,35 @@ public class Residence : MonoBehaviour
   {
     listener.Fire(EventType.DELETED, this);
     Destroy(gameObject);
+  }
+
+  public Router Route
+  {
+    get { return router; }
+  }
+
+  private void AddDestination(Company c)
+  {
+    for (int i = 0; i < c.Attractiveness; i++)
+    {
+      Destinations.Add(c);
+    }
+  }
+
+  private void DeleteDestination(Company c)
+  {
+    Destinations.RemoveAll(oth => oth == c);
+  }
+
+  private class RouterImpl : Router
+  {
+    public override void Handle(Human subject)
+    {
+      throw new InvalidOperationException();
+    }
+    public override void Discard(Human subject)
+    {
+      throw new InvalidOperationException();
+    }
   }
 }

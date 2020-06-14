@@ -50,6 +50,12 @@ public class MoveTask : TrainTask
 
   protected override void HandleOnConsumed(float available)
   {
+    var pos = Position;
+    train.Passengers.ForEach(h => h.Warp(pos));
+  }
 
+  public override void Discard(Human subject)
+  {
+    train.Passengers.Remove(subject);
   }
 }

@@ -7,6 +7,7 @@ public enum EventType
 {
   CREATED,
   MODIFIED,
+  RIDDEN,
   DELETED
 }
 

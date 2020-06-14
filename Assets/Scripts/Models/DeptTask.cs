@@ -2,22 +2,28 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeptTask : LineTask
+public class DeptTask : LineTask, IRoutable
 {
   public Platform Stay;
+  private Router router;
+  public LinkedList<Human> Queue;
 
   public DeptTask(ModelStorage db, ModelListener lis, RailLine l, Platform p) : base(db, lis, l)
   {
     Stay = p;
-    Stay.Depts.Add(this);
+    Stay.Depts.AddLast(this);
     db.Add(this);
+    Queue = new LinkedList<Human>();
+    router = new RouterImpl(this);
     listener.Fire(EventType.CREATED, this);
   }
   public DeptTask(ModelStorage db, ModelListener lis, RailLine l, Platform p, LineTask lt) : base(db, lis, l, lt)
   {
     Stay = p;
-    Stay.Depts.Add(this);
+    Stay.Depts.AddLast(this);
     db.Add(this);
+    Queue = new LinkedList<Human>();
+    router = new RouterImpl(this);
     listener.Fire(EventType.CREATED, this);
   }
 
@@ -78,5 +84,47 @@ public class DeptTask : LineTask
   public override void InsertPlatform(Platform platform)
   {
     throw new ArgumentException("try to insert platform to DeptTask");
+  }
+
+  public override void Remove()
+  {
+    Stay.Depts.Remove(this);
+    base.Remove();
+  }
+
+  public Router Route { get { return router; } }
+
+  private class RouterImpl : Router
+  {
+    protected DeptTask parent;
+    public RouterImpl(DeptTask dept)
+    {
+      parent = dept;
+    }
+    /**
+      * プラットフォームで電車を待っているならば、乗車待ちリストに登録します
+      */
+    public override void Handle(Human subject)
+    {
+      if (parent.Queue.Contains(subject))
+      {
+        subject.State = Human.StateType.WAIT_TRAIN_ARRIVAL;
+        subject.OnPlatform = null;
+        subject.OnDeptTask = parent;
+        parent.Stay.InQueue.Remove(subject);
+        parent.Queue.AddLast(subject);
+      }
+    }
+
+    /**
+      * ホームにおり、発車待機列に並ぶのを待っていた人を取り除く
+      * 次のframeで _fireがコールされる人が該当
+      * 電車の待機者を取り除く
+      */
+    public override void Discard(Human subject)
+    {
+      parent.Stay.InQueue.Remove(subject);
+      parent.Queue.Remove(subject);
+    }
   }
 }

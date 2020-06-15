@@ -88,7 +88,7 @@ public class StayTask : TrainTask
    */
   protected override void HandleOnInited()
   {
-    train.Passengers.Where(h => h.Next == org.Stay as IRoutable).ToList().ForEach(h =>
+    train.Passengers.FindAll(h => h.Next == org.Stay as IRoutable).ForEach(h =>
     {
       h.State = Human.StateType.WAIT_EXIT_TRAIN;
       OutQueue.AddLast(h);

@@ -213,7 +213,7 @@ public class PathFinder
   {
     Nodes.ForEach(n => n.Reset());
     Goal.WalkThrough();
-    Nodes.Where(n => n.Via != null).ToList().ForEach(n =>
+    Nodes.FindAll(n => n.Via != null).ForEach(n =>
     {
       n.Origin.Route.SetNext(n.Via.Origin, Goal.Origin, n.Cost, n.Payment);
     });

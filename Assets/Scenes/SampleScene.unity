@@ -601,6 +601,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
+  Speed: 0.5
+  DespawnScore: -10
+  LifeSpan: 8.5
+  StayBuff: 0.15
   Rand: 0.1
 --- !u!212 &574433309
 SpriteRenderer:
@@ -856,6 +860,60 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &741379969
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 741379971}
+  - component: {fileID: 741379970}
+  m_Layer: 0
+  m_Name: Transport
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &741379970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741379969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892f1480de8c8af46ba211f9fd38dad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DistRatio: 0.1
+  RideCost: 1
+  PayRatio: 4
+  listener: {fileID: 714523288}
+  storage: {fileID: 1189923521}
+  resource: {fileID: 255327800}
+  FinderIdx: 0
+  RailLineIdx: 0
+  DeptTaskIdx: 0
+  TrainIdx: 0
+  IsWaiting: 1
+--- !u!4 &741379971
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741379969}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 26
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &885028482
 GameObject:
   m_ObjectHideFlags: 0
@@ -887,6 +945,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
+  Capacity: 20
 --- !u!4 &885028484
 Transform:
   m_ObjectHideFlags: 0
@@ -936,6 +995,7 @@ MonoBehaviour:
   Stay: 2
   Mobility: 6
   Speed: 1.5
+  Capacity: 30
 --- !u!212 &909370554
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1560,7 +1620,7 @@ MonoBehaviour:
   storage: {fileID: 1189923521}
   listener: {fileID: 714523288}
   factory: {fileID: 1475604691}
-  IntervalSec: 0.5
+  Interval: 0.5
 --- !u!212 &1353281538
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1941,6 +2001,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
+  Mobility: 5
+  Capacity: 5
 --- !u!4 &1793646194
 Transform:
   m_ObjectHideFlags: 0

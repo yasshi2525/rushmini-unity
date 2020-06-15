@@ -46,6 +46,7 @@ public class Platform : MonoBehaviour, IRoutable
     obj.On = on;
     on.StandsOver = obj;
     obj.transform.position = on.transform.position;
+    obj.BelongsTo = st;
     st.AddPlatform(obj);
     obj.Depts = new LinkedList<DeptTask>();
     obj.InQueue = new LinkedList<Human>();

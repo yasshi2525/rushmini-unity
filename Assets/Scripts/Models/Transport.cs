@@ -45,7 +45,7 @@ public class Transport : MonoBehaviour
 
   private void Update()
   {
-    if (resource.state != UserResource.State.FIXED) return;
+    if (resource.State != UserResource.StateType.FIXED) return;
     if (IsFixed) return;
     if (IsWaiting)
     {
@@ -63,9 +63,7 @@ public class Transport : MonoBehaviour
       Scan();
       return;
     }
-    Debug.Log("before exec");
     Finders[FinderIdx].Execute();
-    Debug.Log("after exec");
     FinderIdx++;
     TrainIdx = 0;
     RailLineIdx = 0;

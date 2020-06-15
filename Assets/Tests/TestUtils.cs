@@ -16,6 +16,8 @@ public class TestUtils
   public Gate g;
   public Train t;
   public Human h;
+  public UserResource ures;
+  public Transport trans;
   public TestUtils()
   {
     storage = new GameObject().AddComponent<ModelStorage>();
@@ -54,8 +56,15 @@ public class TestUtils
     ho.AddComponent<SpriteRenderer>();
     factory.h = h = ho.AddComponent<Human>();
 
-    c.listener = r.listener = rn.listener = re.listener = rp.listener = st.listener = p.listener = g.listener = t.listener = h.listener = listener;
-    c.storage = r.storage = rn.storage = re.storage = rp.storage = st.storage = p.storage = g.storage = t.storage = h.storage = storage;
-    r.factory = rn.factory = re.factory = st.factory = factory;
+    var ureso = new GameObject();
+    ures = ureso.AddComponent<UserResource>();
+
+    var transo = new GameObject();
+    trans = transo.AddComponent<Transport>();
+    trans.resource = ures;
+
+    c.listener = r.listener = rn.listener = re.listener = rp.listener = st.listener = p.listener = g.listener = t.listener = h.listener = ures.listener = trans.listener = listener;
+    c.storage = r.storage = rn.storage = re.storage = rp.storage = st.storage = p.storage = g.storage = t.storage = h.storage = ures.storage = trans.storage = storage;
+    r.factory = rn.factory = re.factory = st.factory = ures.factory = factory;
   }
 }

@@ -29,9 +29,9 @@ public class PathNode : IComparable<PathNode>
   /**
    * 自身に隣接する点をコスト昇順で返します
    */
-  protected SortedSet<PathNode> SortNeighbors()
+  protected List<PathNode> SortNeighbors()
   {
-    var queue = new SortedSet<PathNode>();
+    var queue = new List<PathNode>();
     In.Select(e =>
     {
       e.From.Cost = e.Cost;
@@ -39,6 +39,7 @@ public class PathNode : IComparable<PathNode>
       e.From.Via = this;
       return e.From;
     }).ToList().ForEach((n) => queue.Add(n));
+    queue.Sort();
     return queue;
   }
 
@@ -65,6 +66,7 @@ public class PathNode : IComparable<PathNode>
           y.Payment = x.Payment + e.Payment;
           y.Via = x;
           queue.Add(y);
+          queue.Sort();
         }
       });
     }

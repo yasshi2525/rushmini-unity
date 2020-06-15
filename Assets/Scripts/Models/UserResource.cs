@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class UserResource : MonoBehaviour
 {
-  public enum State
+  public enum StateType
   {
     INITED, STARTED, FIXED
   }
@@ -36,11 +36,11 @@ public class UserResource : MonoBehaviour
   */
   private int distTrain;
 
-  [System.NonSerialized] public State state;
-  private State committedState;
+  private StateType state;
+  private StateType committedState;
   private float committedLength;
 
-  private IDictionary<State, UnityEvent> stateListeners;
+  private IDictionary<StateType, UnityEvent> stateListeners;
 
   /**
    * 駅を一定間隔で設置するため、最後に駅を作ってからextendした距離を保持するカウンター
@@ -53,8 +53,8 @@ public class UserResource : MonoBehaviour
 
   private void Awake()
   {
-    state = State.INITED;
-    stateListeners = new Dictionary<State, UnityEvent>();
+    state = StateType.INITED;
+    stateListeners = new Dictionary<StateType, UnityEvent>();
   }
 
   private void Start()
@@ -62,7 +62,7 @@ public class UserResource : MonoBehaviour
     Proxy = new Action(storage, listener, factory);
   }
 
-  public UnityEvent FindListener(State ev)
+  public UnityEvent FindListener(StateType ev)
   {
     if (!stateListeners.ContainsKey(ev))
     {
@@ -71,28 +71,32 @@ public class UserResource : MonoBehaviour
     return stateListeners[ev];
   }
 
-  private void SetState(State ev)
+  public StateType State
   {
-    state = ev;
-    FindListener(ev).Invoke();
+    get { return state; }
+    set
+    {
+      state = value;
+      FindListener(value).Invoke();
+    }
   }
 
   public void StartRail(Vector3 pos)
   {
-    if (state == State.INITED)
+    if (State == StateType.INITED)
     {
       Proxy.StartRail(pos);
       Proxy.BuildStation();
       Proxy.CreateLine();
       Proxy.StartLine();
       Proxy.DeployTrain(Proxy.TailLine.Top);
-      SetState(State.STARTED);
+      State = StateType.STARTED;
     }
   }
 
   public void ExtendRail(Vector3 pos)
   {
-    if (state == State.STARTED)
+    if (State == StateType.STARTED)
     {
       // 近い距離でつくってしまうとじぐざぐするのでスキップする
       tailPosition = pos;
@@ -111,10 +115,10 @@ public class UserResource : MonoBehaviour
 
   public void EndRail()
   {
-    if (state == State.STARTED)
+    if (State == StateType.STARTED)
     {
       InsertTerminal();
-      SetState(State.FIXED);
+      State = StateType.FIXED;
     }
   }
 

@@ -38,7 +38,6 @@ public class Route : MonoBehaviour
   private void Update()
   {
     if (resource.State != UserResource.StateType.FIXED) return;
-    Debug.Log(FinderIdx);
     if (IsFixed) return;
     if (IsWaiting)
     {
@@ -131,7 +130,7 @@ public class Route : MonoBehaviour
         do
         {
           var next = prev.Route.NextFor(dest);
-          if (next != null && !float.IsNaN(prev.Route.DistanceFor(next)))
+          if (next != null)
           {
             f.Edge(prev, next, prev.Route.DistanceFor(next), prev.Route.PaymentFor(next));
           }
@@ -226,12 +225,12 @@ public class Route : MonoBehaviour
     do
     {
       var next = prev.Route.NextFor(dest);
-      if (next != null && !float.IsNaN(prev.Route.DistanceFor(next)))
+      if (next != null)
       {
         f.Edge(prev, next, prev.Route.DistanceFor(next), prev.Route.PaymentFor(next));
       }
       prev = next;
-    } while (prev != null && prev != dept);
+    } while (prev != null && prev != dest as IRoutable);
 
     DeptTaskIdx++;
     if (DeptTaskIdx == storage.List<DeptTask>().Count)

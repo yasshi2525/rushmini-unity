@@ -80,43 +80,43 @@ public class Transport : MonoBehaviour
     IsWaiting = true;
   }
 
-  protected void Add(Platform p)
+  private void Add(Platform p)
   {
     Finders.ForEach(f => f.Node(p));
     Finders.Add(new PathFinder(p));
     Reset();
   }
 
-  protected void Add(DeptTask dept)
+  private void Add(DeptTask dept)
   {
     Finders.ForEach(f => f.Node(dept));
     Reset();
   }
 
-  protected void Add(Train t)
+  private void Add(Train t)
   {
     Finders.ForEach(f => f.Node(t));
   }
 
-  protected void Remove(Platform p)
+  private void Remove(Platform p)
   {
     Finders.ForEach(f => f.Unnode(p));
     Finders.RemoveAll(f => f.Goal.Origin == p as IRoutable);
     Reset();
   }
 
-  protected void Remove(DeptTask dept)
+  private void Remove(DeptTask dept)
   {
     Finders.ForEach(f => f.Unnode(dept));
     Reset();
   }
 
-  protected void Remove(Train t)
+  private void Remove(Train t)
   {
     Finders.ForEach(f => f.Unnode(t));
   }
 
-  protected float Payment(float length, RailLine l)
+  private float Payment(float length, RailLine l)
   {
     return length / Mathf.Sqrt(l.Length) * PayRatio;
   }
@@ -124,7 +124,7 @@ public class Transport : MonoBehaviour
    * 電車の現在地点から各駅へのedgeを貼る。
    * これにより、電車が到達可能な駅に対して距離を設定できる
    */
-  protected void RouteTrain()
+  private void RouteTrain()
   {
     var f = Finders[FinderIdx];
     var t = storage.List<Train>()[TrainIdx];
@@ -145,7 +145,7 @@ public class Transport : MonoBehaviour
    * 前の駅から次の駅までの距離をタスク距離合計とする
    * 乗車プラットフォーム => 発車タスク => 到着プラットフォームとする
    */
-  protected void Scan()
+  private void Scan()
   {
     var f = Finders[FinderIdx];
     var l = storage.List<RailLine>()[RailLineIdx];

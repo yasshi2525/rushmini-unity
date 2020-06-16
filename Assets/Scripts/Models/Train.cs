@@ -5,6 +5,7 @@ public class Train : MonoBehaviour, IRoutable
 {
   public ModelListener listener;
   public ModelStorage storage;
+  public UserResource resource;
   private Train template;
   private bool isTemplate = true;
   public float Stay = 2f;
@@ -32,7 +33,7 @@ public class Train : MonoBehaviour, IRoutable
 
   private void Update()
   {
-    if (executor != null)
+    if (executor != null && resource.State == UserResource.StateType.FIXED)
     {
       var prev = executor.Position;
       executor.Update();

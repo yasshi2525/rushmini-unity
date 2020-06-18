@@ -106,7 +106,7 @@ public class DeptTask : LineTask, IRoutable
       */
     public override void Handle(Human subject)
     {
-      if (parent.Queue.Contains(subject))
+      if (!parent.Queue.Contains(subject))
       {
         subject.State = Human.StateType.WAIT_TRAIN_ARRIVAL;
         subject.OnPlatform = null;

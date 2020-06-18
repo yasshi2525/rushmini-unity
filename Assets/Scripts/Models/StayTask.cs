@@ -96,6 +96,7 @@ public class StayTask : TrainTask
     org.Queue.Where(h => h.Next == org).ToList().ForEach(h =>
     {
       h.State = Human.StateType.WAIT_ENTER_TRAIN;
+      h.OnTrain = train;  // ここで参照を貼らないと、乗車待ち時に死んだケースに気づけない
       InQueue.AddLast(h);
     });
   }

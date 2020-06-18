@@ -13,7 +13,7 @@ public class Residence : MonoBehaviour, IRoutable
    * 会社の魅力度に応じて住民をスポーンするため、
    * 魅力度の数だけ同じ会社を行き先に設定する
    */
-  [System.NonSerialized] public List<Company> Destinations;
+  [System.NonSerialized] public LinkedList<Company> Destinations;
 
   public float Interval = 0.5f;
 
@@ -33,7 +33,7 @@ public class Residence : MonoBehaviour, IRoutable
       listener.Add<Residence>(EventType.CREATED, r => storage.Add(r));
       listener.Add<Residence>(EventType.DELETED, r => storage.Remove(r));
     }
-    Destinations = new List<Company>();
+    Destinations = new LinkedList<Company>();
     if (!isTemplate)
     {
       storage.List<Company>().ForEach(c => AddDestination(c));
@@ -50,9 +50,10 @@ public class Residence : MonoBehaviour, IRoutable
     {
       if (Destinations.Count > 0)
       {
-        var c = Destinations[0];
+        var c = Destinations.First.Value;
+        Destinations.RemoveFirst();
         factory.NewHuman(this, c);
-        Destinations.Add(c);
+        Destinations.AddLast(c);
       }
       remainTime += Interval;
     }
@@ -84,13 +85,14 @@ public class Residence : MonoBehaviour, IRoutable
   {
     for (int i = 0; i < c.Attractiveness; i++)
     {
-      Destinations.Add(c);
+      Destinations.AddLast(c);
     }
   }
 
   private void DeleteDestination(Company c)
   {
-    Destinations.RemoveAll(oth => oth == c);
+    while (Destinations.Contains(c))
+      Destinations.Remove(c);
   }
 
   private class RouterImpl : Router

@@ -99,7 +99,7 @@ namespace Tests
       Assert.AreEqual(dept1, p1.Route.NextFor(c));
       Assert.AreEqual(p2, dept1.Route.NextFor(c));
       Assert.AreEqual(g2, p2.Route.NextFor(c));
-      Assert.AreEqual(g2, g2.Route.NextFor(c));
+      Assert.AreEqual(c, g2.Route.NextFor(c));
     }
   }
 }

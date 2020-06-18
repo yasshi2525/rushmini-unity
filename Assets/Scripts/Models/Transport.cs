@@ -10,7 +10,7 @@ public class Transport : MonoBehaviour
   /**
    * 乗車コスト
    */
-  public float RideCost = 1f;
+  public float RideCost = 0.01f;
   /**
    * 総延長に対する移動距離の割合に対して乗ずる料金
    */

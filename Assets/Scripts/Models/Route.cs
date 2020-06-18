@@ -12,6 +12,7 @@ public class Route : MonoBehaviour
   public ModelListener listener;
   public ModelStorage storage;
   public UserResource resource;
+  public Transport trans;
   public bool IsWaiting = true;
 
   public bool IsFixed { get { return !IsWaiting && FinderIdx == Finders.Count; } }
@@ -37,18 +38,25 @@ public class Route : MonoBehaviour
 
   private void Update()
   {
-    if (resource.State != UserResource.StateType.FIXED) return;
+    if (!trans.IsWaiting && !trans.IsFixed) return;
+    if (resource.State == UserResource.StateType.STARTED) return;
     if (IsFixed) return;
     if (IsWaiting)
     {
       // 以前の経路探索結果 Dept <=> P を削除
       Finders.ForEach(f =>
       {
-        storage.List<DeptTask>().ForEach(dept => f.Unnode(dept));
+        storage.List<DeptTask>().ForEach(dept =>
+        {
+          f.Unnode(dept);
+          f.Node(dept);
+          f.Edge(dept.Stay, dept, 0);
+        });
       });
       IsWaiting = false;
       return;
     }
+    if (!trans.IsWaiting && !trans.IsFixed) return;
     if (PlatformIdx < storage.List<Platform>().Count)
     {
       CopyTransport();
@@ -80,7 +88,6 @@ public class Route : MonoBehaviour
 
       // R => all G for each goal
       storage.List<Gate>().ForEach(g => f.Edge(r, g, Vector3.Distance(r.transform.position, g.transform.position)));
-      f.Execute();
     });
     Reset();
   }
@@ -156,7 +163,7 @@ public class Route : MonoBehaviour
       f.Edge(g, f.Goal.Origin, Vector3.Distance(g.transform.position, (f.Goal.Origin as Company).transform.position));
 
       // all G <=> G for each goal
-      storage.List<Gate>().ForEach(oth =>
+      storage.List<Gate>().Where(oth => g != oth).ToList().ForEach(oth =>
       {
         f.Edge(g, oth, Vector3.Distance(g.transform.position, oth.transform.position));
         f.Edge(oth, g, Vector3.Distance(oth.transform.position, g.transform.position));

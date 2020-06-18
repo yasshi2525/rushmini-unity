@@ -63,7 +63,7 @@ public class RailNode : MonoBehaviour
     {
       throw new ArgumentException("try to build station on already deployed");
     }
-    return factory.NewPlatform(this, factory.NewStation());
+    return factory.NewPlatform(this, factory.NewStation(transform.position));
   }
 
   public void Remove()

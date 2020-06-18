@@ -40,9 +40,9 @@ public class ModelFactory : MonoBehaviour
     return rp.NewInstance(parent, isForward);
   }
 
-  public Station NewStation()
+  public Station NewStation(Vector3 initPos)
   {
-    return st.NewInstance();
+    return st.NewInstance(initPos);
   }
 
   public Gate NewGate(Station s)

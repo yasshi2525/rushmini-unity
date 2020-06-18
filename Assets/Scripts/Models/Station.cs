@@ -29,12 +29,13 @@ public class Station : MonoBehaviour
     }
   }
 
-  public Station NewInstance()
+  public Station NewInstance(Vector3 initPos)
   {
     var obj = Instantiate(template);
     obj.isTemplate = false;
     obj.GetComponent<SpriteRenderer>().enabled = true;
-    obj.Under = factory.NewGate(this);
+    obj.transform.position = initPos;
+    obj.Under = factory.NewGate(obj);
     listener.Fire(EventType.CREATED, obj);
     return obj;
   }

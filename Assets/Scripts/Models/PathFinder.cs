@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PathNode : IComparable<PathNode>
 {
@@ -127,6 +128,10 @@ public class PathFinder
    */
   public PathNode Node(IRoutable org)
   {
+    if (org == null)
+    {
+      throw new ArgumentNullException();
+    }
     var res = Nodes.Find(n => n.Origin == org);
     if (res == null)
     {
@@ -162,6 +167,10 @@ public class PathFinder
    */
   public PathEdge Edge(IRoutable from, IRoutable to, float cost, float payment)
   {
+    if (from == null || to == null)
+    {
+      throw new ArgumentNullException();
+    }
     var res = Edges.Find(e => e.From.Origin == from && e.To.Origin == to);
     if (res != null)
     {

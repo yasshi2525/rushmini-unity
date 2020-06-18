@@ -890,7 +890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DistRatio: 0.1
-  RideCost: 1
+  RideCost: 0.01
   PayRatio: 4
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
@@ -1721,6 +1721,7 @@ MonoBehaviour:
   listener: {fileID: 714523288}
   storage: {fileID: 1189923521}
   resource: {fileID: 255327800}
+  trans: {fileID: 741379970}
   IsWaiting: 1
 --- !u!4 &1387482413
 Transform:

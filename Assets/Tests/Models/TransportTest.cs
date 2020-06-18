@@ -154,25 +154,25 @@ namespace Tests
       Assert.AreEqual(0f, p1.Route.DistanceFor(p1), utils.DELTA);
       Assert.AreEqual(0f, p1.Route.PaymentFor(p1), utils.DELTA);
       Assert.AreSame(dept1, p1.Route.NextFor(p2));
-      Assert.AreEqual(1.5f, p1.Route.DistanceFor(p2), utils.DELTA);
+      Assert.AreEqual(0.51f, p1.Route.DistanceFor(p2), utils.DELTA);
       Assert.AreEqual(cost, p1.Route.PaymentFor(p2), utils.DELTA);
 
       Assert.AreSame(p1, dept1.Route.NextFor(p1));
       Assert.AreEqual(0f, dept1.Route.DistanceFor(p1), utils.DELTA);
       Assert.AreEqual(0f, dept1.Route.PaymentFor(p1), utils.DELTA);
       Assert.AreSame(p2, dept1.Route.NextFor(p2));
-      Assert.AreEqual(1.5f, dept1.Route.DistanceFor(p2), utils.DELTA); // 乗車 +1
+      Assert.AreEqual(0.51f, dept1.Route.DistanceFor(p2), utils.DELTA); // 乗車 +1
       Assert.AreEqual(cost, dept1.Route.PaymentFor(p2), utils.DELTA);
 
       Assert.AreSame(dept2, p2.Route.NextFor(p1));
-      Assert.AreEqual(1.5f, p2.Route.DistanceFor(p1), utils.DELTA); // 乗車 +1
+      Assert.AreEqual(0.51f, p2.Route.DistanceFor(p1), utils.DELTA); // 乗車 +1
       Assert.AreEqual(cost, p2.Route.PaymentFor(p1), utils.DELTA);
       Assert.AreSame(dept2, p2.Route.NextFor(p2));
       Assert.AreEqual(0f, p2.Route.DistanceFor(p2), utils.DELTA);
       Assert.AreEqual(0f, p2.Route.PaymentFor(p2), utils.DELTA);
 
       Assert.AreSame(p1, dept2.Route.NextFor(p1));
-      Assert.AreEqual(1.5f, dept2.Route.DistanceFor(p1), utils.DELTA); // 乗車 +1
+      Assert.AreEqual(0.51f, dept2.Route.DistanceFor(p1), utils.DELTA); // 乗車 +1
       Assert.AreEqual(cost, dept2.Route.PaymentFor(p1), utils.DELTA);
       Assert.AreSame(p2, dept2.Route.NextFor(p2));
       Assert.AreEqual(0f, dept2.Route.DistanceFor(p2), utils.DELTA);

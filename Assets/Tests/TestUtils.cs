@@ -18,6 +18,7 @@ public class TestUtils
   public Human h;
   public UserResource ures;
   public Transport trans;
+  public Route route;
   public TestUtils()
   {
     storage = new GameObject().AddComponent<ModelStorage>();
@@ -61,10 +62,14 @@ public class TestUtils
 
     var transo = new GameObject();
     trans = transo.AddComponent<Transport>();
-    trans.resource = ures;
 
-    c.listener = r.listener = rn.listener = re.listener = rp.listener = st.listener = p.listener = g.listener = t.listener = h.listener = ures.listener = trans.listener = listener;
-    c.storage = r.storage = rn.storage = re.storage = rp.storage = st.storage = p.storage = g.storage = t.storage = h.storage = ures.storage = trans.storage = storage;
+    var routeo = new GameObject();
+    route = routeo.AddComponent<Route>();
+    route.trans = trans;
+
+    c.listener = r.listener = rn.listener = re.listener = rp.listener = st.listener = p.listener = g.listener = t.listener = h.listener = ures.listener = trans.listener = route.listener = listener;
+    c.storage = r.storage = rn.storage = re.storage = rp.storage = st.storage = p.storage = g.storage = t.storage = h.storage = ures.storage = trans.storage = route.storage = storage;
     r.factory = rn.factory = re.factory = st.factory = ures.factory = factory;
+    t.resource = trans.resource = route.resource = ures;
   }
 }

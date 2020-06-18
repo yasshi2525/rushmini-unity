@@ -104,7 +104,7 @@ public class Human : MonoBehaviour, IRoutable
     obj.rideTime = 0f;
     obj.Departure = r;
     obj.Destination = c;
-    obj.Reroute();
+    obj.Next = r.Route.NextFor(c);
     obj.GetComponent<SpriteRenderer>().enabled = true;
     obj.transform.position = r.transform.position;
     obj.Randomize();
@@ -173,7 +173,7 @@ public class Human : MonoBehaviour, IRoutable
     }
     else
     {
-      float angle = Vector3.SignedAngle(Vector3.up, remain, Vector3.forward) / 180 * Mathf.PI;
+      float angle = Vector3.SignedAngle(Vector3.right, remain, Vector3.forward) / 180 * Mathf.PI;
       DamageByWalk(Warp(
         transform.position + available * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle))
       ));
